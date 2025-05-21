@@ -1,6 +1,7 @@
 # EKS-Checklist
 ![EKS Checklist Logo](./images/EKS_Checklist.png)
 
+
 **EKS-Checklist**는 Amazon EKS (Elastic Kubernetes Service) 클러스터의 설정과 상태를 자동으로 점검하여, 운영자가 클러스터의 구성을 파악하여 **최적화**, **보안**, **비용 절감**, **안정성**을 개선 할 수 있도록 EKS 클러스터 검사 도구입니다.
 
 > 이 도구는 Go 언어로 작성되었으며, AWS SDK for Go, Kubernetes Go Client, 그리고 CLI 명령어 프레임워크인 Cobra를 활용하여 제작되었습니다.
