@@ -13,6 +13,8 @@ extra_css:
   - assets/css/custom.css
 
 site_name: "EKS Checklist"
+repo_url: "https://github.com/fitcloud/eks-checklist"
+repo_name: "fitcloud/eks-checklist"
 docs_dir: docs
 theme:
   name: "material"
