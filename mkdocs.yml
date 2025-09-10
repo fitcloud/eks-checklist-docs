@@ -12,12 +12,14 @@ markdown_extensions:
 extra_css:
   - assets/css/custom.css
 
-site_name: "EKS Checklist"
+site_name: "KOR<br>Kubernetes Optimization Review"
 repo_url: "https://github.com/fitcloud/eks-checklist"
 repo_name: "fitcloud/eks-checklist"
 docs_dir: docs
 theme:
   name: "material"
+  icon:
+    repo: fontawesome/brands/github
   features:
     - content.code.copy
     - content.code.select
@@ -28,7 +30,7 @@ theme:
 nav:
     - Home : 
       - index.md
-      - How it works : home/howitworks.md
+      # - How it works : home/howitworks.md
     - Runbook:
       - General:
         - GEN-001 코드형 인프라 : runbook/general/GEN-001.md

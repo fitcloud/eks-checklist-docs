@@ -4,7 +4,7 @@ code, pre {
     word-break: break-word !important;
   }
 /* EKS Checklist 이미지 크기 조정 */
-  img[src='../images/EKS_Checklist.png'] {
+  img[src='../images/KOR_logo.png'] {
     width: 350px;
     height: auto;
   }

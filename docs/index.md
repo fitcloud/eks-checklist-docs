@@ -1,8 +1,8 @@
 # EKS-Checklist
-![EKS Checklist Logo](./images/EKS_Checklist.png)
+![KOR Logo](./images/KOR_logo.png)
 
 
-**EKS-Checklist**는 Amazon EKS (Elastic Kubernetes Service) 클러스터의 설정과 상태를 자동으로 점검하여, 운영자가 클러스터의 구성을 파악하여 **최적화**, **보안**, **비용 절감**, **안정성**을 개선 할 수 있도록 EKS 클러스터 검사 도구입니다.
+**KOR (Kubernetes Optimization Review)**는 Amazon EKS (Elastic Kubernetes Service) 클러스터의 설정과 상태를 자동으로 점검하여, 운영자가 클러스터의 구성을 파악하여 **최적화**, **보안**, **비용 절감**, **안정성**을 개선 할 수 있도록 EKS 클러스터 검사 도구입니다.
 
 > 이 도구는 Go 언어로 작성되었으며, AWS SDK for Go, Kubernetes Go Client, 그리고 CLI 명령어 프레임워크인 Cobra를 활용하여 제작되었습니다.
 
@@ -10,7 +10,7 @@
 
 ## ✅ 프로젝트 목적
 
-**EKS Checklist**는 EKS Cluster의 문제를 사전에 식별하고 개선할 수 있도록 설계된 도구입니다. AWS 및 Kubernetes의 **모범 사례(Best Practices)**를 기반으로 클러스터 상태를 분석하고, 점검을 통해 식별된 모든 Fail 결과에 대해 의미 있는 Runbook을 제공하여 사용자가 신속하게 문제를 해결하고 보다 안정적이고 효율적인 Cluster 환경을 구축하는 것을 목표로 합니다.
+**KOR**는 EKS Cluster의 문제를 사전에 식별하고 개선할 수 있도록 설계된 도구입니다. AWS 및 Kubernetes의 **모범 사례(Best Practices)**를 기반으로 클러스터 상태를 분석하고, 점검을 통해 식별된 모든 Fail 결과에 대해 의미 있는 Runbook을 제공하여 사용자가 신속하게 문제를 해결하고 보다 안정적이고 효율적인 Cluster 환경을 구축하는 것을 목표로 합니다.
 
 ---
 
@@ -25,7 +25,7 @@
 | **보안 (Security)**       | IAM 정책, 인증 구성, API 서버 접근 제어 등 보안 관련 설정이 적절히 되어 있는지 점검하여 클러스터의 보안 설정 확인 |
 | **안정성 (Reliability)**    | 로그, 모니터링, 백업 설정 등의 설정 유무를 점검하여 클러스터의 안정성 진단 |
 
----
+<!-- ---
 
 ## 📋 요구 사항
 
@@ -99,5 +99,5 @@ eks-checklist --context my-cluster --output text
 
 **출력 예시**
 도구 실행 결과는 다음과 같은 방식으로 정리됩니다:
-![output](./images/output.png)
+![output](./images/output.png) -->
 
