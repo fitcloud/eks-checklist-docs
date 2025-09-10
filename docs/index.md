@@ -1,4 +1,4 @@
-# EKS-Checklist
+# KOR
 ![KOR Logo](./images/KOR_logo.png)
 
 
