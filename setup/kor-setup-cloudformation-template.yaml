@@ -450,40 +450,13 @@ Resources:
                       for cluster_name in target_clusters:
                           cluster_result = {
                               'cluster': cluster_name,
+                              'security_group_rule': 'pending',
                               'access_entry': 'pending',
-                              'policy_association': 'pending',
-                              'security_group_rule': 'pending'
+                              'policy_association': 'pending'
                           }
                           
                           try:
-                              # Create AccessEntry
-                              try:
-                                  eks_client.create_access_entry(
-                                      clusterName=cluster_name,
-                                      principalArn=role_arn,
-                                      type='STANDARD'
-                                  )
-                                  logger.info(f"Created AccessEntry for cluster: {cluster_name}")
-                                  cluster_result['access_entry'] = 'created'
-                              except eks_client.exceptions.ResourceInUseException:
-                                  logger.info(f"AccessEntry already exists for cluster: {cluster_name}")
-                                  cluster_result['access_entry'] = 'exists'
-                              
-                              # Associate policy
-                              try:
-                                  eks_client.associate_access_policy(
-                                      clusterName=cluster_name,
-                                      principalArn=role_arn,
-                                      policyArn='arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminViewPolicy',
-                                      accessScope={'type': 'cluster'}
-                                  )
-                                  logger.info(f"Associated policy for cluster: {cluster_name}")
-                                  cluster_result['policy_association'] = 'associated'
-                              except eks_client.exceptions.ResourceInUseException:
-                                  logger.info(f"Policy already associated for cluster: {cluster_name}")
-                                  cluster_result['policy_association'] = 'exists'
-                              
-                              # Get cluster security group and add ingress rule
+                              # Step 1: Get cluster security group and add ingress rule FIRST
                               try:
                                   cluster_info = eks_client.describe_cluster(name=cluster_name)
                                   cluster_sg_id = cluster_info['cluster']['resourcesVpcConfig']['clusterSecurityGroupId']
@@ -524,6 +497,33 @@ Resources:
                               except Exception as e:
                                   logger.error(f"Error configuring security group for cluster {cluster_name}: {str(e)}")
                                   cluster_result['security_group_rule'] = f'error: {str(e)}'
+                              
+                              # Step 2: Create AccessEntry
+                              try:
+                                  eks_client.create_access_entry(
+                                      clusterName=cluster_name,
+                                      principalArn=role_arn,
+                                      type='STANDARD'
+                                  )
+                                  logger.info(f"Created AccessEntry for cluster: {cluster_name}")
+                                  cluster_result['access_entry'] = 'created'
+                              except eks_client.exceptions.ResourceInUseException:
+                                  logger.info(f"AccessEntry already exists for cluster: {cluster_name}")
+                                  cluster_result['access_entry'] = 'exists'
+                              
+                              # Step 3: Associate policy
+                              try:
+                                  eks_client.associate_access_policy(
+                                      clusterName=cluster_name,
+                                      principalArn=role_arn,
+                                      policyArn='arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminViewPolicy',
+                                      accessScope={'type': 'cluster'}
+                                  )
+                                  logger.info(f"Associated policy for cluster: {cluster_name}")
+                                  cluster_result['policy_association'] = 'associated'
+                              except eks_client.exceptions.ResourceInUseException:
+                                  logger.info(f"Policy already associated for cluster: {cluster_name}")
+                                  cluster_result['policy_association'] = 'exists'
                               
                               cluster_result['status'] = 'success'
                               results.append(cluster_result)
@@ -578,13 +578,13 @@ Resources:
                           logger.warning(f"Error determining target clusters for delete: {str(e)}")
                           target_clusters = []
                       
-                      # Perform cleanup for each target cluster
+                      # Perform cleanup for each target cluster (reverse order of creation)
                       for cluster_name in target_clusters:
                           cluster_result = {
                               'cluster': cluster_name, 
-                              'security_group_cleanup': 'skipped',
                               'policy_cleanup': 'skipped', 
-                              'access_entry_cleanup': 'skipped'
+                              'access_entry_cleanup': 'skipped',
+                              'security_group_cleanup': 'skipped'
                           }
                           
                           try:
@@ -602,7 +602,38 @@ Resources:
                                   cleanup_results.append(cluster_result)
                                   continue
                               
-                              # Remove security group rule
+                              # Step 1: Disassociate policy
+                              try:
+                                  eks_client.disassociate_access_policy(
+                                      clusterName=cluster_name,
+                                      principalArn=role_arn,
+                                      policyArn='arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminViewPolicy'
+                                  )
+                                  logger.info(f"Successfully disassociated policy for cluster: {cluster_name}")
+                                  cluster_result['policy_cleanup'] = 'success'
+                              except eks_client.exceptions.ResourceNotFoundException:
+                                  logger.info(f"Policy association not found for {cluster_name} (already cleaned up)")
+                                  cluster_result['policy_cleanup'] = 'not_found'
+                              except Exception as e:
+                                  logger.warning(f"Could not disassociate policy for {cluster_name}: {str(e)}")
+                                  cluster_result['policy_cleanup'] = 'failed'
+                              
+                              # Step 2: Delete AccessEntry
+                              try:
+                                  eks_client.delete_access_entry(
+                                      clusterName=cluster_name,
+                                      principalArn=role_arn
+                                  )
+                                  logger.info(f"Successfully deleted AccessEntry for cluster: {cluster_name}")
+                                  cluster_result['access_entry_cleanup'] = 'success'
+                              except eks_client.exceptions.ResourceNotFoundException:
+                                  logger.info(f"AccessEntry not found for {cluster_name} (already cleaned up)")
+                                  cluster_result['access_entry_cleanup'] = 'not_found'
+                              except Exception as e:
+                                  logger.warning(f"Could not delete AccessEntry for {cluster_name}: {str(e)}")
+                                  cluster_result['access_entry_cleanup'] = 'failed'
+                              
+                              # Step 3: Remove security group rule
                               try:
                                   cluster_info = eks_client.describe_cluster(name=cluster_name)
                                   cluster_sg_id = cluster_info['cluster']['resourcesVpcConfig']['clusterSecurityGroupId']
@@ -639,37 +670,6 @@ Resources:
                               except Exception as e:
                                   logger.warning(f"Error removing security group rule for {cluster_name}: {str(e)}")
                                   cluster_result['security_group_cleanup'] = 'failed'
-                              
-                              # Disassociate policy
-                              try:
-                                  eks_client.disassociate_access_policy(
-                                      clusterName=cluster_name,
-                                      principalArn=role_arn,
-                                      policyArn='arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminViewPolicy'
-                                  )
-                                  logger.info(f"Successfully disassociated policy for cluster: {cluster_name}")
-                                  cluster_result['policy_cleanup'] = 'success'
-                              except eks_client.exceptions.ResourceNotFoundException:
-                                  logger.info(f"Policy association not found for {cluster_name} (already cleaned up)")
-                                  cluster_result['policy_cleanup'] = 'not_found'
-                              except Exception as e:
-                                  logger.warning(f"Could not disassociate policy for {cluster_name}: {str(e)}")
-                                  cluster_result['policy_cleanup'] = 'failed'
-                              
-                              # Delete AccessEntry
-                              try:
-                                  eks_client.delete_access_entry(
-                                      clusterName=cluster_name,
-                                      principalArn=role_arn
-                                  )
-                                  logger.info(f"Successfully deleted AccessEntry for cluster: {cluster_name}")
-                                  cluster_result['access_entry_cleanup'] = 'success'
-                              except eks_client.exceptions.ResourceNotFoundException:
-                                  logger.info(f"AccessEntry not found for {cluster_name} (already cleaned up)")
-                                  cluster_result['access_entry_cleanup'] = 'not_found'
-                              except Exception as e:
-                                  logger.warning(f"Could not delete AccessEntry for {cluster_name}: {str(e)}")
-                                  cluster_result['access_entry_cleanup'] = 'failed'
                               
                               cluster_result['status'] = 'completed'
                               
