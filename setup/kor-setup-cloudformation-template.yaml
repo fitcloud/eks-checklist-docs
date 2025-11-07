@@ -1,0 +1,816 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'KOR service unified template - EC2 instance with Docker/kubectl installation and EKS AccessEntry setup'
+
+Parameters:
+  # EC2 관련 파라미터
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Description: Subnet ID where EC2 instance will be launched
+    ConstraintDescription: Must be a valid subnet ID
+  
+  InstanceType:
+    Type: String
+    Description: EC2 instance type
+    Default: t3.medium
+    AllowedValues:
+      - t3.micro
+      - t3.small
+      - t3.medium
+      - t3.large
+      - t3.xlarge
+      - m5.large
+      - m5.xlarge
+    ConstraintDescription: Must be a valid EC2 instance type
+  
+  KeyPairName:
+    Type: String
+    Description: EC2 Key Pair name for SSH access (optional)
+    Default: ''
+  
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: VPC ID where Security Group will be created
+    ConstraintDescription: Must be a valid VPC ID
+  
+  # EKS 관련 파라미터
+  ApplyToAllClusters:
+    Type: String
+    Description: Apply to all clusters in account (true) or specific clusters (false)
+    Default: 'true'
+    AllowedValues:
+      - 'true'
+      - 'false'
+    ConstraintDescription: Choose true for all clusters or false for specific clusters
+  
+  SpecificClusterNames:
+    Type: CommaDelimitedList
+    Description: Comma-separated list of specific cluster names (only used when ApplyToAllClusters is false)
+    Default: ''
+  
+  # 기타 파라미터
+  Region:
+    Type: String
+    Description: AWS Region
+    Default: ap-northeast-2
+    AllowedPattern: '[a-z0-9-]+'
+  
+  LatestAmiId:
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64
+    Description: Latest Amazon Linux 2023 AMI ID (automatically updated)
+
+Conditions:
+  HasKeyPair: !Not [!Equals [!Ref KeyPairName, '']]
+  ApplyToAllClustersCondition: !Equals [!Ref ApplyToAllClusters, 'true']
+  ApplyToSpecificClustersCondition: !Equals [!Ref ApplyToAllClusters, 'false']
+
+Resources:
+  # IAM Role (kor-ec2-setup-template 기준)
+  KorRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: Saltware-KOR-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      Policies:
+        - PolicyName: SaltwareKorCustomPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - eks:ListClusters
+                  - eks:DescribeCluster
+                  - eks:ListNodegroups
+                  - eks:DescribeNodegroup
+                  - ec2:Describe*
+                  - ec2:GetConsoleOutput
+                  - ec2:GetPasswordData
+                  - iam:Get*
+                  - iam:List*
+                  - vpc:Describe*
+                Resource: '*'
+        - PolicyName: S3AccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:GetBucketLocation
+                  - s3:ListAllMyBuckets
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:PutObjectAcl
+                  - s3:GetObject
+                  - s3:GetObjectAcl
+                Resource: 'arn:aws:s3:::saltware-kor-result/*'
+      Tags:
+        - Key: Name
+          Value: Saltware-KOR-role
+        - Key: Purpose
+          Value: KOR-Service
+        - Key: CreatedBy
+          Value: CloudFormation
+
+  # IAM Instance Profile
+  KorInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: !Sub '${AWS::StackName}-kor-instance-profile'
+      Roles:
+        - !Ref KorRole
+
+  # Security Group for EC2 instance
+  KorEC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub '${AWS::StackName}-kor-sg'
+      GroupDescription: 'Security Group for KOR EC2 instance'
+      VpcId: !Ref VpcId
+      SecurityGroupIngress: []
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: 'HTTPS outbound for AWS APIs, Docker Hub, kubectl downloads'
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+          Description: 'HTTP outbound for package downloads and redirects'
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-kor-sg'
+        - Key: Purpose
+          Value: KOR-Service
+        - Key: CreatedBy
+          Value: CloudFormation
+
+  # SSM Document for Docker and kubectl installation
+  DockerKubectlInstallDocument:
+    Type: AWS::SSM::Document
+    Properties:
+      DocumentType: Command
+      DocumentFormat: YAML
+      Name: !Sub '${AWS::StackName}-docker-kubectl-install'
+      Content:
+        schemaVersion: '2.2'
+        description: 'Install Docker and kubectl'
+        mainSteps:
+          - action: aws:runShellScript
+            name: installDockerAndKubectl
+            inputs:
+              timeoutSeconds: '600'
+              runCommand:
+                - '#!/bin/bash'
+                - 'yum update -y'
+                - 'yum install -y docker'
+                - 'systemctl enable docker && systemctl start docker'
+                - 'usermod -a -G docker ec2-user'
+                - 'curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"'
+                - 'install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl'
+                - 'rm -f kubectl'
+
+  # EC2 Instance
+  KorEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref LatestAmiId
+      InstanceType: !Ref InstanceType
+      SubnetId: !Ref SubnetId
+      SecurityGroupIds: 
+        - !Ref KorEC2SecurityGroup
+      IamInstanceProfile: !Ref KorInstanceProfile
+      KeyName: !If [HasKeyPair, !Ref KeyPairName, !Ref 'AWS::NoValue']
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install -y amazon-ssm-agent
+          systemctl enable amazon-ssm-agent
+          systemctl start amazon-ssm-agent
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName}-kor-instance'
+        - Key: Purpose
+          Value: KOR-Service
+        - Key: CreatedBy
+          Value: CloudFormation
+
+  # Lambda function to execute SSM document
+  SSMExecutionLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: SSMExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:SendCommand
+                  - ssm:GetCommandInvocation
+                  - ssm:DescribeInstanceInformation
+                  - ec2:DescribeInstances
+                  - ec2:DescribeInstanceStatus
+                Resource: '*'
+
+  SSMExecutionLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${AWS::StackName}-ssm-executor'
+      Runtime: python3.9
+      Handler: index.lambda_handler
+      Role: !GetAtt SSMExecutionLambdaRole.Arn
+      Timeout: 600
+      Code:
+        ZipFile: |
+          import boto3
+          import json
+          import logging
+          import cfnresponse
+          import time
+          
+          logger = logging.getLogger()
+          logger.setLevel(logging.INFO)
+          
+          def lambda_handler(event, context):
+              try:
+                  logger.info(f"Event: {json.dumps(event)}")
+                  
+                  ssm_client = boto3.client('ssm')
+                  ec2_client = boto3.client('ec2')
+                  
+                  instance_id = event['ResourceProperties']['InstanceId']
+                  document_name = event['ResourceProperties']['DocumentName']
+                  request_type = event['RequestType']
+                  
+                  if request_type == 'Delete':
+                      logger.info("Delete operation - cleaning up gracefully")
+                      cfnresponse.send(event, context, cfnresponse.SUCCESS, {'Status': 'Delete completed'})
+                      return
+                  
+                  # Wait for instance to be ready
+                  logger.info(f"Waiting for instance {instance_id} to be ready...")
+                  waiter = ec2_client.get_waiter('instance_status_ok')
+                  waiter.wait(
+                      InstanceIds=[instance_id],
+                      WaiterConfig={'Delay': 15, 'MaxAttempts': 40}
+                  )
+                  
+                  # Additional wait for SSM agent
+                  time.sleep(30)
+                  
+                  # Check if instance is managed by SSM
+                  logger.info("Checking SSM agent status...")
+                  for attempt in range(10):
+                      try:
+                          response = ssm_client.describe_instance_information(
+                              Filters=[{'Key': 'InstanceIds', 'Values': [instance_id]}]
+                          )
+                          if response['InstanceInformationList']:
+                              logger.info("Instance is managed by SSM")
+                              break
+                      except Exception as e:
+                          logger.warning(f"SSM check attempt {attempt + 1}: {str(e)}")
+                      
+                      if attempt < 9:
+                          time.sleep(30)
+                      else:
+                          raise Exception("Instance is not managed by SSM after waiting")
+                  
+                  logger.info("Executing SSM document")
+                  
+                  # Execute SSM document
+                  response = ssm_client.send_command(
+                      InstanceIds=[instance_id],
+                      DocumentName=document_name,
+                      TimeoutSeconds=600
+                  )
+                  
+                  command_id = response['Command']['CommandId']
+                  logger.info(f"SSM command started with ID: {command_id}")
+                  
+                  # Wait for command completion
+                  for attempt in range(40):
+                      try:
+                          result = ssm_client.get_command_invocation(
+                              CommandId=command_id,
+                              InstanceId=instance_id
+                          )
+                          
+                          status = result['Status']
+                          logger.info(f"Command status: {status}")
+                          
+                          if status == 'Success':
+                              logger.info("SSM command completed successfully")
+                              response_data = {
+                                  'CommandId': command_id,
+                                  'Status': 'Success',
+                                  'StandardOutput': result.get('StandardOutputContent', '')[:1000]
+                              }
+                              cfnresponse.send(event, context, cfnresponse.SUCCESS, response_data)
+                              return
+                          elif status in ['Failed', 'Cancelled', 'TimedOut']:
+                              error_output = result.get('StandardErrorContent', 'No error details available')
+                              logger.error(f"SSM command failed: {error_output}")
+                              cfnresponse.send(event, context, cfnresponse.FAILED, {'Error': error_output})
+                              return
+                          elif status in ['InProgress', 'Pending']:
+                              time.sleep(30)
+                          else:
+                              logger.warning(f"Unknown status: {status}")
+                              time.sleep(30)
+                              
+                      except Exception as e:
+                          logger.warning(f"Error checking command status: {str(e)}")
+                          time.sleep(30)
+                  
+                  # Timeout
+                  logger.error("SSM command execution timed out")
+                  cfnresponse.send(event, context, cfnresponse.FAILED, {'Error': 'Command execution timed out'})
+                  
+              except Exception as e:
+                  logger.error(f"Lambda function error: {str(e)}")
+                  cfnresponse.send(event, context, cfnresponse.FAILED, {'Error': str(e)})
+
+  # Custom Resource to execute SSM document
+  SSMExecutionCustomResource:
+    Type: AWS::CloudFormation::CustomResource
+    Properties:
+      ServiceToken: !GetAtt SSMExecutionLambdaFunction.Arn
+      InstanceId: !Ref KorEC2Instance
+      DocumentName: !Ref DockerKubectlInstallDocument
+    DependsOn: KorEC2Instance
+
+  # EKS Setup Lambda Role
+  EKSSetupLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: EKSAccessEntryPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - eks:ListClusters
+                  - eks:DescribeCluster
+                  - eks:CreateAccessEntry
+                  - eks:DeleteAccessEntry
+                  - eks:ListAccessEntries
+                  - eks:AssociateAccessPolicy
+                  - eks:DisassociateAccessPolicy
+                  - eks:ListAssociatedAccessPolicies
+                  - ec2:DescribeSecurityGroups
+                  - ec2:AuthorizeSecurityGroupIngress
+                  - ec2:RevokeSecurityGroupIngress
+                Resource: '*'
+
+  # EKS Setup Lambda Function
+  EKSSetupLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub '${AWS::StackName}-eks-setup'
+      Runtime: python3.9
+      Handler: index.lambda_handler
+      Role: !GetAtt EKSSetupLambdaRole.Arn
+      Timeout: 300
+      Code:
+        ZipFile: |
+          import boto3
+          import json
+          import logging
+          import cfnresponse
+          
+          logger = logging.getLogger()
+          logger.setLevel(logging.INFO)
+          
+          def lambda_handler(event, context):
+              try:
+                  logger.info(f"Event: {json.dumps(event)}")
+                  
+                  eks_client = boto3.client('eks')
+                  ec2_client = boto3.client('ec2')
+                  role_arn = event['ResourceProperties']['RoleArn']
+                  apply_to_all = event['ResourceProperties']['ApplyToAllClusters']
+                  specific_clusters = event['ResourceProperties'].get('SpecificClusterNames', [])
+                  ec2_security_group_id = event['ResourceProperties']['EC2SecurityGroupId']
+                  request_type = event['RequestType']
+                  
+                  # Determine target clusters
+                  if apply_to_all == 'true':
+                      target_clusters = eks_client.list_clusters()['clusters']
+                      logger.info(f"Applying to all clusters: {target_clusters}")
+                  else:
+                      if isinstance(specific_clusters, list):
+                          target_clusters = [cluster.strip() for cluster in specific_clusters if cluster.strip() and cluster.strip() != 'placeholder']
+                      else:
+                          target_clusters = [cluster.strip() for cluster in str(specific_clusters).split(',') if cluster.strip() and cluster.strip() != 'placeholder']
+                      
+                      logger.info(f"Applying to specific clusters: {target_clusters}")
+                      
+                      # Validate that specified clusters exist
+                      all_clusters = eks_client.list_clusters()['clusters']
+                      invalid_clusters = [c for c in target_clusters if c not in all_clusters]
+                      if invalid_clusters:
+                          raise ValueError(f"Invalid cluster names: {invalid_clusters}. Available clusters: {all_clusters}")
+                  
+                  if request_type == 'Create' or request_type == 'Update':
+                      results = []
+                      for cluster_name in target_clusters:
+                          cluster_result = {
+                              'cluster': cluster_name,
+                              'security_group_rule': 'pending',
+                              'access_entry': 'pending',
+                              'policy_association': 'pending'
+                          }
+                          
+                          try:
+                              # Step 1: Get cluster security group and add ingress rule FIRST
+                              try:
+                                  cluster_info = eks_client.describe_cluster(name=cluster_name)
+                                  cluster_sg_id = cluster_info['cluster']['resourcesVpcConfig']['clusterSecurityGroupId']
+                                  
+                                  if cluster_sg_id:
+                                      logger.info(f"Adding security group rule for cluster {cluster_name} (SG: {cluster_sg_id})")
+                                      
+                                      # Add ingress rule to cluster security group allowing EC2 security group on port 443
+                                      try:
+                                          ec2_client.authorize_security_group_ingress(
+                                              GroupId=cluster_sg_id,
+                                              IpPermissions=[
+                                                  {
+                                                      'IpProtocol': 'tcp',
+                                                      'FromPort': 443,
+                                                      'ToPort': 443,
+                                                      'UserIdGroupPairs': [
+                                                          {
+                                                              'GroupId': ec2_security_group_id,
+                                                              'Description': f'Allow HTTPS from KOR EC2 instance'
+                                                          }
+                                                      ]
+                                                  }
+                                              ]
+                                          )
+                                          logger.info(f"Added security group rule for cluster: {cluster_name}")
+                                          cluster_result['security_group_rule'] = 'added'
+                                      except ec2_client.exceptions.ClientError as e:
+                                          if 'InvalidPermission.Duplicate' in str(e):
+                                              logger.info(f"Security group rule already exists for cluster: {cluster_name}")
+                                              cluster_result['security_group_rule'] = 'exists'
+                                          else:
+                                              raise e
+                                  else:
+                                      logger.warning(f"No cluster security group found for cluster: {cluster_name}")
+                                      cluster_result['security_group_rule'] = 'no_cluster_sg'
+                              
+                              except Exception as e:
+                                  logger.error(f"Error configuring security group for cluster {cluster_name}: {str(e)}")
+                                  cluster_result['security_group_rule'] = f'error: {str(e)}'
+                              
+                              # Step 2: Create AccessEntry
+                              try:
+                                  eks_client.create_access_entry(
+                                      clusterName=cluster_name,
+                                      principalArn=role_arn,
+                                      type='STANDARD'
+                                  )
+                                  logger.info(f"Created AccessEntry for cluster: {cluster_name}")
+                                  cluster_result['access_entry'] = 'created'
+                              except eks_client.exceptions.ResourceInUseException:
+                                  logger.info(f"AccessEntry already exists for cluster: {cluster_name}")
+                                  cluster_result['access_entry'] = 'exists'
+                              
+                              # Step 3: Associate policy
+                              try:
+                                  eks_client.associate_access_policy(
+                                      clusterName=cluster_name,
+                                      principalArn=role_arn,
+                                      policyArn='arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminViewPolicy',
+                                      accessScope={'type': 'cluster'}
+                                  )
+                                  logger.info(f"Associated policy for cluster: {cluster_name}")
+                                  cluster_result['policy_association'] = 'associated'
+                              except eks_client.exceptions.ResourceInUseException:
+                                  logger.info(f"Policy already associated for cluster: {cluster_name}")
+                                  cluster_result['policy_association'] = 'exists'
+                              
+                              cluster_result['status'] = 'success'
+                              results.append(cluster_result)
+                              
+                          except Exception as e:
+                              logger.error(f"Error processing cluster {cluster_name}: {str(e)}")
+                              cluster_result['status'] = 'error'
+                              cluster_result['error'] = str(e)
+                              results.append(cluster_result)
+                      
+                      response_data = {
+                          'ClustersProcessed': str(len(target_clusters)),
+                          'Results': json.dumps(results),
+                          'ApplyToAllClusters': apply_to_all,
+                          'TargetClusters': json.dumps(target_clusters)
+                      }
+                      
+                  elif request_type == 'Delete':
+                      logger.info("Starting cleanup process...")
+                      cleanup_results = []
+                      
+                      try:
+                          if apply_to_all == 'true':
+                              try:
+                                  all_available_clusters = eks_client.list_clusters()['clusters']
+                                  target_clusters = all_available_clusters
+                                  logger.info(f"Delete mode: Found clusters to clean up: {target_clusters}")
+                              except Exception as e:
+                                  logger.warning(f"Could not list clusters during delete: {str(e)}")
+                                  target_clusters = []
+                          else:
+                              if isinstance(specific_clusters, list):
+                                  raw_clusters = specific_clusters
+                              else:
+                                  raw_clusters = str(specific_clusters).split(',')
+                              
+                              raw_clusters = [cluster.strip() for cluster in raw_clusters if cluster.strip() != 'placeholder']
+                              
+                              try:
+                                  all_available_clusters = eks_client.list_clusters()['clusters']
+                                  target_clusters = [c for c in raw_clusters if c in all_available_clusters]
+                                  logger.info(f"Delete mode: Clusters to clean up: {target_clusters}")
+                                  
+                                  missing_clusters = [c for c in raw_clusters if c not in all_available_clusters]
+                                  if missing_clusters:
+                                      logger.info(f"Clusters not found (skipping cleanup): {missing_clusters}")
+                              except Exception as e:
+                                  logger.warning(f"Could not validate clusters during delete: {str(e)}")
+                                  target_clusters = []
+                      
+                      except Exception as e:
+                          logger.warning(f"Error determining target clusters for delete: {str(e)}")
+                          target_clusters = []
+                      
+                      # Perform cleanup for each target cluster (reverse order of creation)
+                      for cluster_name in target_clusters:
+                          cluster_result = {
+                              'cluster': cluster_name, 
+                              'policy_cleanup': 'skipped', 
+                              'access_entry_cleanup': 'skipped',
+                              'security_group_cleanup': 'skipped'
+                          }
+                          
+                          try:
+                              try:
+                                  eks_client.describe_cluster(name=cluster_name)
+                                  logger.info(f"Cluster {cluster_name} exists, proceeding with cleanup")
+                              except eks_client.exceptions.ResourceNotFoundException:
+                                  logger.info(f"Cluster {cluster_name} not found, skipping cleanup")
+                                  cluster_result['status'] = 'cluster_not_found'
+                                  cleanup_results.append(cluster_result)
+                                  continue
+                              except Exception as e:
+                                  logger.warning(f"Could not verify cluster {cluster_name}: {str(e)}")
+                                  cluster_result['status'] = 'cluster_check_failed'
+                                  cleanup_results.append(cluster_result)
+                                  continue
+                              
+                              # Step 1: Disassociate policy
+                              try:
+                                  eks_client.disassociate_access_policy(
+                                      clusterName=cluster_name,
+                                      principalArn=role_arn,
+                                      policyArn='arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminViewPolicy'
+                                  )
+                                  logger.info(f"Successfully disassociated policy for cluster: {cluster_name}")
+                                  cluster_result['policy_cleanup'] = 'success'
+                              except eks_client.exceptions.ResourceNotFoundException:
+                                  logger.info(f"Policy association not found for {cluster_name} (already cleaned up)")
+                                  cluster_result['policy_cleanup'] = 'not_found'
+                              except Exception as e:
+                                  logger.warning(f"Could not disassociate policy for {cluster_name}: {str(e)}")
+                                  cluster_result['policy_cleanup'] = 'failed'
+                              
+                              # Step 2: Delete AccessEntry
+                              try:
+                                  eks_client.delete_access_entry(
+                                      clusterName=cluster_name,
+                                      principalArn=role_arn
+                                  )
+                                  logger.info(f"Successfully deleted AccessEntry for cluster: {cluster_name}")
+                                  cluster_result['access_entry_cleanup'] = 'success'
+                              except eks_client.exceptions.ResourceNotFoundException:
+                                  logger.info(f"AccessEntry not found for {cluster_name} (already cleaned up)")
+                                  cluster_result['access_entry_cleanup'] = 'not_found'
+                              except Exception as e:
+                                  logger.warning(f"Could not delete AccessEntry for {cluster_name}: {str(e)}")
+                                  cluster_result['access_entry_cleanup'] = 'failed'
+                              
+                              # Step 3: Remove security group rule
+                              try:
+                                  cluster_info = eks_client.describe_cluster(name=cluster_name)
+                                  cluster_sg_id = cluster_info['cluster']['resourcesVpcConfig']['clusterSecurityGroupId']
+                                  
+                                  if cluster_sg_id:
+                                      try:
+                                          ec2_client.revoke_security_group_ingress(
+                                              GroupId=cluster_sg_id,
+                                              IpPermissions=[
+                                                  {
+                                                      'IpProtocol': 'tcp',
+                                                      'FromPort': 443,
+                                                      'ToPort': 443,
+                                                      'UserIdGroupPairs': [
+                                                          {
+                                                              'GroupId': ec2_security_group_id
+                                                          }
+                                                      ]
+                                                  }
+                                              ]
+                                          )
+                                          logger.info(f"Successfully removed security group rule for cluster: {cluster_name}")
+                                          cluster_result['security_group_cleanup'] = 'success'
+                                      except ec2_client.exceptions.ClientError as e:
+                                          if 'InvalidPermission.NotFound' in str(e):
+                                              logger.info(f"Security group rule not found for {cluster_name} (already cleaned up)")
+                                              cluster_result['security_group_cleanup'] = 'not_found'
+                                          else:
+                                              logger.warning(f"Could not remove security group rule for {cluster_name}: {str(e)}")
+                                              cluster_result['security_group_cleanup'] = 'failed'
+                                  else:
+                                      logger.info(f"No cluster security group found for {cluster_name}")
+                                      cluster_result['security_group_cleanup'] = 'no_cluster_sg'
+                              except Exception as e:
+                                  logger.warning(f"Error removing security group rule for {cluster_name}: {str(e)}")
+                                  cluster_result['security_group_cleanup'] = 'failed'
+                              
+                              cluster_result['status'] = 'completed'
+                              
+                          except Exception as e:
+                              logger.warning(f"Error during cleanup for cluster {cluster_name}: {str(e)}")
+                              cluster_result['status'] = 'error'
+                              cluster_result['error'] = str(e)
+                          
+                          cleanup_results.append(cluster_result)
+                      
+                      response_data = {
+                          'Status': 'Cleanup completed',
+                          'ClustersProcessed': str(len(target_clusters)),
+                          'CleanupResults': json.dumps(cleanup_results)
+                      }
+                      
+                      logger.info(f"Cleanup completed. Results: {cleanup_results}")
+                  
+                  cfnresponse.send(event, context, cfnresponse.SUCCESS, response_data)
+                  
+              except Exception as e:
+                  logger.error(f"Lambda function error: {str(e)}")
+                  
+                  if event.get('RequestType') == 'Delete':
+                      logger.info("Delete operation failed, but returning success to allow stack deletion")
+                      cfnresponse.send(event, context, cfnresponse.SUCCESS, {
+                          'Status': 'Delete completed with errors',
+                          'Error': str(e)
+                      })
+                  else:
+                      cfnresponse.send(event, context, cfnresponse.FAILED, {'Error': str(e)})
+
+  # Custom Resource for All Clusters
+  EKSSetupAllClustersCustomResource:
+    Type: AWS::CloudFormation::CustomResource
+    Condition: ApplyToAllClustersCondition
+    Properties:
+      ServiceToken: !GetAtt EKSSetupLambdaFunction.Arn
+      RoleArn: !GetAtt KorRole.Arn
+      ApplyToAllClusters: 'true'
+      SpecificClusterNames: []
+      EC2SecurityGroupId: !Ref KorEC2SecurityGroup
+    DependsOn: 
+      - KorRole
+      - KorEC2SecurityGroup
+
+  # Custom Resource for Specific Clusters
+  EKSSetupSpecificClustersCustomResource:
+    Type: AWS::CloudFormation::CustomResource
+    Condition: ApplyToSpecificClustersCondition
+    Properties:
+      ServiceToken: !GetAtt EKSSetupLambdaFunction.Arn
+      RoleArn: !GetAtt KorRole.Arn
+      ApplyToAllClusters: 'false'
+      SpecificClusterNames: !Ref SpecificClusterNames
+      EC2SecurityGroupId: !Ref KorEC2SecurityGroup
+    DependsOn: 
+      - KorRole
+      - KorEC2SecurityGroup
+
+Outputs:
+  # EC2 관련 출력
+  InstanceId:
+    Description: EC2 Instance ID
+    Value: !Ref KorEC2Instance
+    Export:
+      Name: !Sub '${AWS::StackName}-InstanceId'
+  
+  InstancePrivateIP:
+    Description: EC2 Instance Private IP
+    Value: !GetAtt KorEC2Instance.PrivateIp
+    Export:
+      Name: !Sub '${AWS::StackName}-InstancePrivateIP'
+  
+  SecurityGroupId:
+    Description: Created Security Group ID
+    Value: !Ref KorEC2SecurityGroup
+    Export:
+      Name: !Sub '${AWS::StackName}-SecurityGroupId'
+  
+  SSMDocumentName:
+    Description: SSM Document name for Docker and kubectl installation
+    Value: !Ref DockerKubectlInstallDocument
+    Export:
+      Name: !Sub '${AWS::StackName}-SSMDocumentName'
+  
+  SSMCommandId:
+    Description: SSM Command ID for the installation
+    Value: !GetAtt SSMExecutionCustomResource.CommandId
+  
+  InstallationStatus:
+    Description: Installation status
+    Value: !GetAtt SSMExecutionCustomResource.Status
+  
+  # IAM 관련 출력
+  RoleName:
+    Description: Created IAM Role name
+    Value: !Ref KorRole
+    Export:
+      Name: !Sub '${AWS::StackName}-RoleName'
+  
+  RoleArn:
+    Description: Created IAM Role ARN
+    Value: !GetAtt KorRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-RoleArn'
+  
+  InstanceProfileName:
+    Description: Created Instance Profile name
+    Value: !Ref KorInstanceProfile
+    Export:
+      Name: !Sub '${AWS::StackName}-InstanceProfileName'
+  
+  InstanceProfileArn:
+    Description: Created Instance Profile ARN
+    Value: !GetAtt KorInstanceProfile.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-InstanceProfileArn'
+  
+  # EKS 관련 출력
+  ApplyToAllClusters:
+    Description: Whether applied to all clusters or specific clusters
+    Value: !Ref ApplyToAllClusters
+  
+  ClustersProcessed:
+    Description: Number of EKS clusters processed
+    Value: !If 
+      - ApplyToAllClustersCondition
+      - !Sub '${EKSSetupAllClustersCustomResource.ClustersProcessed}'
+      - !Sub '${EKSSetupSpecificClustersCustomResource.ClustersProcessed}'
+  
+  ProcessingResults:
+    Description: Processing results for each cluster (JSON format)
+    Value: !If 
+      - ApplyToAllClustersCondition
+      - !Sub '${EKSSetupAllClustersCustomResource.Results}'
+      - !Sub '${EKSSetupSpecificClustersCustomResource.Results}'
+  
+  TargetClusters:
+    Description: List of target clusters that were processed
+    Value: !If 
+      - ApplyToAllClustersCondition
+      - !Sub '${EKSSetupAllClustersCustomResource.TargetClusters}'
+      - !Sub '${EKSSetupSpecificClustersCustomResource.TargetClusters}'
