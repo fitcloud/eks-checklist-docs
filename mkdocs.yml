@@ -2,14 +2,6 @@ site_name: "KOR"
 repo_url: "https://github.com/fitcloud/eks-checklist"
 repo_name: "fitcloud/eks-checklist"
 docs_dir: docs
-theme:
-  name: "material"
-  font: false
-  icon:
-    repo: fontawesome/brands/github
-  features:
-    - content.code.copy
-    - content.code.select
 
 nav:
     - Home: index.md
@@ -74,12 +66,38 @@ nav:
       - Cost:
         - COST-001 kubecost 설치 : runbook/cost/COST-001.md
 
+plugins:
+  - search
+theme:
+  name: material
+  palette:
+    primary: indigo
+    accent: indigo
+  font:
+    text: Roboto
+    code: Roboto Mono
+  features:
+    - content.code.copy
+    - content.code.select
+    - navigation.tabs
+    
+# Extensions
 markdown_extensions:
-  - attr_list
   - admonition
-  - pymdownx.details
+  - attr_list
+  - codehilite
+  - pymdownx.inlinehilite
+  - pymdownx.tasklist:
+      custom_checkbox: true
   - pymdownx.superfences
-
-
+  - pymdownx.tabbed
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - toc:
+      toc_depth: "2"
 extra_css:
   - assets/css/custom.css
+  - https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css
+extra_javascript:
+  - https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js
