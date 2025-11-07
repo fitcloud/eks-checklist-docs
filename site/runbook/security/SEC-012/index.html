@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1925,25 +1921,25 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>EKS 클러스터가 사용하는 Subnet이 Public or Private인지 확인하세요</p>
-<pre><code class="language-bash">aws ec2 describe-route-tables --filters &quot;Name=association.subnet-id,Values=$(aws eks describe-cluster --name eks-checklist --query 'cluster.resourcesVpcConfig.subnetIds' --output text | tr '\t' ',')&quot; | jq -r '.RouteTables[] | {RouteTableId, Routes: .Routes[] | select(.DestinationCidrBlock == &quot;0.0.0.0/0&quot;) } | {RouteTableId, DestinationCidrBlock: .Routes.DestinationCidrBlock, GatewayId: (if .Routes.GatewayId then .Routes.GatewayId else .Routes.NatGatewayId end), PublicStatus: (if .Routes.GatewayId and (.Routes.GatewayId | test(&quot;^igw-&quot;)) then &quot;public&quot; elif .Routes.NatGatewayId then &quot;private&quot; else &quot;private&quot; end)}'
-</code></pre>
-<p><strong>출력 example</strong></p>
-<pre><code class="language-bash">Internet Gateway 존재
-  &quot;DestinationCidrBlock&quot;: &quot;0.0.0.0/0&quot;,
-  &quot;GatewayId&quot;: &quot;igw-0123456789&quot;,
-  &quot;PublicStatus&quot;: &quot;public&quot;
- ------------------------------------------ 
-Natgateway 존재
-  &quot;DestinationCidrBlock&quot;: &quot;0.0.0.0/0&quot;,
-  &quot;GatewayId&quot;: &quot;nat-0123456789&quot;,
-  &quot;PublicStatus&quot;: &quot;private&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code>aws<span class="w"> </span>ec2<span class="w"> </span>describe-route-tables<span class="w"> </span>--filters<span class="w"> </span><span class="s2">&quot;Name=association.subnet-id,Values=</span><span class="k">$(</span>aws<span class="w"> </span>eks<span class="w"> </span>describe-cluster<span class="w"> </span>--name<span class="w"> </span>eks-checklist<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;cluster.resourcesVpcConfig.subnetIds&#39;</span><span class="w"> </span>--output<span class="w"> </span>text<span class="w"> </span><span class="p">|</span><span class="w"> </span>tr<span class="w"> </span><span class="s1">&#39;\t&#39;</span><span class="w"> </span><span class="s1">&#39;,&#39;</span><span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.RouteTables[] | {RouteTableId, Routes: .Routes[] | select(.DestinationCidrBlock == &quot;0.0.0.0/0&quot;) } | {RouteTableId, DestinationCidrBlock: .Routes.DestinationCidrBlock, GatewayId: (if .Routes.GatewayId then .Routes.GatewayId else .Routes.NatGatewayId end), PublicStatus: (if .Routes.GatewayId and (.Routes.GatewayId | test(&quot;^igw-&quot;)) then &quot;public&quot; elif .Routes.NatGatewayId then &quot;private&quot; else &quot;private&quot; end)}&#39;</span>
+</code></pre></div>
+<p><strong>출력 example</strong>
+<div class="highlight"><pre><span></span><code>Internet<span class="w"> </span>Gateway<span class="w"> </span>존재
+<span class="w">  </span><span class="s2">&quot;DestinationCidrBlock&quot;</span>:<span class="w"> </span><span class="s2">&quot;0.0.0.0/0&quot;</span>,
+<span class="w">  </span><span class="s2">&quot;GatewayId&quot;</span>:<span class="w"> </span><span class="s2">&quot;igw-0123456789&quot;</span>,
+<span class="w">  </span><span class="s2">&quot;PublicStatus&quot;</span>:<span class="w"> </span><span class="s2">&quot;public&quot;</span>
+<span class="w"> </span>------------------------------------------<span class="w"> </span>
+Natgateway<span class="w"> </span>존재
+<span class="w">  </span><span class="s2">&quot;DestinationCidrBlock&quot;</span>:<span class="w"> </span><span class="s2">&quot;0.0.0.0/0&quot;</span>,
+<span class="w">  </span><span class="s2">&quot;GatewayId&quot;</span>:<span class="w"> </span><span class="s2">&quot;nat-0123456789&quot;</span>,
+<span class="w">  </span><span class="s2">&quot;PublicStatus&quot;</span>:<span class="w"> </span><span class="s2">&quot;private&quot;</span>
+</code></pre></div></p>
 <h2 id="mitigation">Mitigation</h2>
 <p>Private Subnet을 사용하세요
 Internet Gateway 존재 시 작업 진행</p>
-<p><strong>example</strong></p>
-<pre><code class="language-bash">aws ec2 create-route --route-table-id &lt;ROUTE-TABLE-ID&gt; --destination-cidr-block 0.0.0.0/0 --nat-gateway-id &lt;NAT-GATEWAY-ID&gt;
-</code></pre>
+<p><strong>example</strong>
+<div class="highlight"><pre><span></span><code>aws<span class="w"> </span>ec2<span class="w"> </span>create-route<span class="w"> </span>--route-table-id<span class="w"> </span>&lt;ROUTE-TABLE-ID&gt;<span class="w"> </span>--destination-cidr-block<span class="w"> </span><span class="m">0</span>.0.0.0/0<span class="w"> </span>--nat-gateway-id<span class="w"> </span>&lt;NAT-GATEWAY-ID&gt;
+</code></pre></div></p>
 <p><a href="https://docs.aws.amazon.com/eks/latest/best-practices/protecting-the-infrastructure.html">EKS 인프라 보안</a></p>
 
 

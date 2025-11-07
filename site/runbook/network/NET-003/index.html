@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1923,14 +1919,14 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>VPC CNI의 Prefix모드가 활성화 되어 있는지 확인하세요</p>
-<pre><code class="language-bash">kubectl get ds aws-node -n kube-system -o jsonpath='{.spec.template.spec.containers[?(@.name==&quot;aws-node&quot;)].env[?(@.name==&quot;ENABLE_PREFIX_DELEGATION&quot;)].value}'
-</code></pre>
-<p>출력 값이 "true"이면 Prefix 모드가 활성화된 것입니다.</p>
+<p><div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>ds<span class="w"> </span>aws-node<span class="w"> </span>-n<span class="w"> </span>kube-system<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.template.spec.containers[?(@.name==&quot;aws-node&quot;)].env[?(@.name==&quot;ENABLE_PREFIX_DELEGATION&quot;)].value}&#39;</span>
+</code></pre></div>
+출력 값이 "true"이면 Prefix 모드가 활성화된 것입니다.</p>
 <h2 id="mitigation">Mitigation</h2>
-<p>관리형 애드온 및 자체관리형 애드온을 설치하세요</p>
-<pre><code class="language-bash">kubectl set env ds aws-node -n kube-system ENABLE_PREFIX_DELEGATION=true
-</code></pre>
-<p>관리형 애드온 및 자체관리형 애드온인 경우 설치 시 'ENABLE_PREFIX_DELEGATION=true' 인수를 넘깁니다</p>
+<p>관리형 애드온 및 자체관리형 애드온을 설치하세요
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span><span class="nb">set</span><span class="w"> </span>env<span class="w"> </span>ds<span class="w"> </span>aws-node<span class="w"> </span>-n<span class="w"> </span>kube-system<span class="w"> </span><span class="nv">ENABLE_PREFIX_DELEGATION</span><span class="o">=</span><span class="nb">true</span>
+</code></pre></div>
+관리형 애드온 및 자체관리형 애드온인 경우 설치 시 'ENABLE_PREFIX_DELEGATION=true' 인수를 넘깁니다</p>
 <p><a href="https://docs.aws.amazon.com/ko_kr/eks/latest/best-practices/vpc-cni.html">AWS EKS Best Practice - Amazon VPC CNI</a>
 <a href="https://docs.aws.amazon.com/ko_kr/eks/latest/best-practices/prefix-mode-linux.html">AWS EKS Best Practice - linux Prefix mode</a>
 <a href="https://docs.aws.amazon.com/ko_kr/eks/latest/best-practices/prefix-mode-win.html">AWS EKS Best Practice - window Prefix mode</a></p>

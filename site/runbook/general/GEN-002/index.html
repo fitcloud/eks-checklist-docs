@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1960,12 +1956,12 @@
 <p>Git 리포지토리에 kustomization.yaml, helm-release.yaml 등 선언적 리소스 정의 존재 여부</p>
 <p>클러스터 상태와 Git 리포 상태 비교 시 불일치 여부 (argocd app diff 등)</p>
 <p><strong>example</strong></p>
-<pre><code class="language-bash"># ArgoCD 설치 확인
-kubectl get pods -n argocd
+<div class="highlight"><pre><span></span><code><span class="c1"># ArgoCD 설치 확인</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>argocd
 
-# 등록된 GitOps 앱 확인
-argocd app list
-</code></pre>
+<span class="c1"># 등록된 GitOps 앱 확인</span>
+argocd<span class="w"> </span>app<span class="w"> </span>list
+</code></pre></div>
 <h2 id="mitigation"><strong>Mitigation</strong></h2>
 <p>애플리케이션 구성을 Git 저장소에 선언적으로 정의합니다.</p>
 <p><strong>구성 요소 example</strong></p>

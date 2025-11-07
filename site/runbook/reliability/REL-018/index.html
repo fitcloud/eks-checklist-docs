@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1924,16 +1920,16 @@
 <h2 id="diagnosis">Diagnosis</h2>
 <p>다음 명령어는 Karpenter 사용 여부 검사는 포함되어 있지 않습니다. 
 PriorityClass가 지정되지 않은 DaemonSet을 다음 명령어로 진단할 수 있습니다.</p>
-<pre><code class="language-bash">kubectl get daemonsets --all-namespaces -o json | jq -r '
-  .items[] | select(.spec.template.spec.priorityClassName == null) |
-  &quot;Namespace: \(.metadata.namespace) | DaemonSet: \(.metadata.name)&quot;'
-</code></pre>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>daemonsets<span class="w"> </span>--all-namespaces<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;</span>
+<span class="s1">  .items[] | select(.spec.template.spec.priorityClassName == null) |</span>
+<span class="s1">  &quot;Namespace: \(.metadata.namespace) | DaemonSet: \(.metadata.name)&quot;&#39;</span>
+</code></pre></div>
 <h2 id="mitigation">Mitigation</h2>
 <p>중요 DaemonSet에 priorityClassName을 추가하세요.</p>
-<p><strong>example</strong></p>
-<pre><code class="language-yaml">spec:
-  priorityClassName: system-node-critical
-</code></pre>
+<p><strong>example</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">priorityClassName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">system-node-critical</span>
+</code></pre></div></p>
 <p><a href="https://kubernetes.io/docs/concepts/workloads/controllers/daemonset">Kubernetes 공식 문서 - DaemonSet</a>
 <a href="https://kubernetes.io/ko/docs/concepts/scheduling-eviction/pod-priority-preemption">Kubernetes 공식 문서 - pod-priority-preemption</a></p>
 

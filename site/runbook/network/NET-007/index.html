@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1922,27 +1918,26 @@
 <li>배포 문제: PodReadinessGate를 사용하지 않으면, 준비되지 않은 Pod가 배포 과정에서 정상적으로 트래픽을 처리한다고 잘못 판단되어, 배포가 완료되었다고 표시될 수 있습니다</li>
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
-<p>PodReadinessGate가 적용되지 않은 Pod가 있는지 확인하세요</p>
-<pre><code class="language-bash">kubectl get namespaces --show-labels | awk 'NR==1 {print &quot;NAME&quot;, &quot;READINESSGATE&quot;; 
-next} {if ($4 ~ /elbv2.k8s.aws\/pod-readiness-gate-inject=enabled/) print $1, &quot;Enabled&quot;; else print $1, &quot;Disabled&quot;}'
-</code></pre>
+<p>PodReadinessGate가 적용되지 않은 Pod가 있는지 확인하세요
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>namespaces<span class="w"> </span>--show-labels<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;NR==1 {print &quot;NAME&quot;, &quot;READINESSGATE&quot;; </span>
+<span class="s1">next} {if ($4 ~ /elbv2.k8s.aws\/pod-readiness-gate-inject=enabled/) print $1, &quot;Enabled&quot;; else print $1, &quot;Disabled&quot;}&#39;</span>
+</code></pre></div></p>
 <h2 id="mitigation">Mitigation</h2>
 <p>PodReadinessGate를 적용하세요</p>
-<p><strong>example</strong></p>
-<pre><code class="language-bash">$ kubectl create namespace readiness
-namespace/readiness created
+<p><strong>example</strong>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>create<span class="w"> </span>namespace<span class="w"> </span>readiness
+namespace/readiness<span class="w"> </span>created
 
-$ kubectl label namespace readiness elbv2.k8s.aws/pod-readiness-gate-inject=enabled
-namespace/readiness labeled
+$<span class="w"> </span>kubectl<span class="w"> </span>label<span class="w"> </span>namespace<span class="w"> </span>readiness<span class="w"> </span>elbv2.k8s.aws/pod-readiness-gate-inject<span class="o">=</span>enabled
+namespace/readiness<span class="w"> </span>labeled
 
-$ kubectl describe namespace readiness
-Name:         readiness
-Labels:       elbv2.k8s.aws/pod-readiness-gate-inject=enabled
-Annotations:  &lt;none&gt;
-Status:       Active
-
-</code></pre>
-<p><a href="https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.1/deploy/pod_readiness_gate/">AWS-load-balancer-controller PodReadinessgate 문서</a></p>
+$<span class="w"> </span>kubectl<span class="w"> </span>describe<span class="w"> </span>namespace<span class="w"> </span>readiness
+Name:<span class="w">         </span>readiness
+Labels:<span class="w">       </span>elbv2.k8s.aws/pod-readiness-gate-inject<span class="o">=</span>enabled
+Annotations:<span class="w">  </span>&lt;none&gt;
+Status:<span class="w">       </span>Active
+</code></pre></div>
+<a href="https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.1/deploy/pod_readiness_gate/">AWS-load-balancer-controller PodReadinessgate 문서</a></p>
 
 
 

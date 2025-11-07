@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1945,20 +1941,20 @@
 <p>대표적인 도구
 - Trivy (Aqua Security)
 - Amazon ECR 이미지 스캐닝</p>
-<p><strong>example Trivy CLI로 이미지 스캔</strong></p>
-<pre><code class="language-bash">trivy image nginx:1.25.2
-</code></pre>
-<p>result</p>
-<pre><code class="language-text">nginx:1.25.2 (debian 11)
+<p><strong>example Trivy CLI로 이미지 스캔</strong>
+<div class="highlight"><pre><span></span><code>trivy<span class="w"> </span>image<span class="w"> </span>nginx:1.25.2
+</code></pre></div></p>
+<p>result
+<div class="highlight"><pre><span></span><code>nginx:1.25.2 (debian 11)
 
 Total: 12 (UNKNOWN: 0, LOW: 4, MEDIUM: 5, HIGH: 2, CRITICAL: 1)
-</code></pre>
+</code></pre></div></p>
 <p><strong>Amazon ECR 사용 시</strong></p>
-<pre><code class="language-bash">aws ecr describe-image-scan-findings \
-  --repository-name my-repo \
-  --image-id imageTag=latest
-</code></pre>
-<p>스캔 결과는 High, Critical 여부에 따라 알림 또는 배포 차단 설정 가능</p>
+<p><div class="highlight"><pre><span></span><code>aws<span class="w"> </span>ecr<span class="w"> </span>describe-image-scan-findings<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--repository-name<span class="w"> </span>my-repo<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--image-id<span class="w"> </span><span class="nv">imageTag</span><span class="o">=</span>latest
+</code></pre></div>
+스캔 결과는 High, Critical 여부에 따라 알림 또는 배포 차단 설정 가능</p>
 <h2 id="mitigation">Mitigation</h2>
 <p>정적 분석 도구 도입 및 자동화</p>
 <ol>

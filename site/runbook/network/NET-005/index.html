@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1924,18 +1920,18 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>AWS Load Balancer Controller가 설치되어 있는지 확인하세요</p>
-<pre><code class="language-bash">kubectl get deployments.apps -A -o custom-columns=&quot;NAMESPACE:.metadata.namespace,NAME:.metadata.name&quot; | grep &quot;aws-load-balancer-controller&quot; &amp;&amp; echo &quot;PASS&quot; || echo &quot;FAIL&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>deployments.apps<span class="w"> </span>-A<span class="w"> </span>-o<span class="w"> </span>custom-columns<span class="o">=</span><span class="s2">&quot;NAMESPACE:.metadata.namespace,NAME:.metadata.name&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;aws-load-balancer-controller&quot;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;PASS&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;FAIL&quot;</span>
+</code></pre></div>
 <h2 id="mitigation">Mitigation</h2>
 <p>AWS Load Balancer Controller를 설치하세요</p>
-<p><strong>example</strong></p>
-<pre><code class="language-bash">helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
-  -n kube-system \
-  --set clusterName=my-cluster \
-  --set serviceAccount.create=false \
-  --set serviceAccount.name=aws-load-balancer-controller
-</code></pre>
-<p><a href="https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/">AWS Load Balancer Controller란</a>
+<p><strong>example</strong>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>install<span class="w"> </span>aws-load-balancer-controller<span class="w"> </span>eks/aws-load-balancer-controller<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-n<span class="w"> </span>kube-system<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span><span class="nv">clusterName</span><span class="o">=</span>my-cluster<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>serviceAccount.create<span class="o">=</span><span class="nb">false</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>serviceAccount.name<span class="o">=</span>aws-load-balancer-controller
+</code></pre></div>
+<a href="https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/">AWS Load Balancer Controller란</a>
 <a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/lbc-helm.html">Helm을 사용한 AWS Load Balancer Controller 설치</a>
 <a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/lbc-manifest.html">매니페스트를 사용한 AWS Load Balancer Controller 설치</a></p>
 

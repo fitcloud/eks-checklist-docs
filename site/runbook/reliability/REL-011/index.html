@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1924,13 +1920,13 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>ASG의 minSize와 maxSize가 올바르게 설정되었는지 확인합니다.</p>
-<pre><code class="language-bash">kubectl get nodes -o json | jq -r '.items[].metadata.labels[&quot;eks.amazonaws.com/nodegroup&quot;]' | sort -u | grep -v null | xargs -I {} aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names {} --region &lt;AWS_REGION&gt; --profile &lt;AWS_PROFILE&gt; --query 'AutoScalingGroups[0].{Name:AutoScalingGroupName, MinSize:MinSize, MaxSize:MaxSize}'
-</code></pre>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>nodes<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.items[].metadata.labels[&quot;eks.amazonaws.com/nodegroup&quot;]&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sort<span class="w"> </span>-u<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span>null<span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>-I<span class="w"> </span><span class="o">{}</span><span class="w"> </span>aws<span class="w"> </span>autoscaling<span class="w"> </span>describe-auto-scaling-groups<span class="w"> </span>--auto-scaling-group-names<span class="w"> </span><span class="o">{}</span><span class="w"> </span>--region<span class="w"> </span>&lt;AWS_REGION&gt;<span class="w"> </span>--profile<span class="w"> </span>&lt;AWS_PROFILE&gt;<span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;AutoScalingGroups[0].{Name:AutoScalingGroupName, MinSize:MinSize, MaxSize:MaxSize}&#39;</span>
+</code></pre></div>
 <h2 id="mitigation">Mitigation</h2>
 <p>ASG의 minSize와 maxSize 값을 올바르게 설정합니다.</p>
-<pre><code class="language-bash">aws autoscaling update-auto-scaling-group --auto-scaling-group-name &lt;ASG_NAME&gt; --min-size 1 --max-size 5 --region &lt;REGION&gt;
-</code></pre>
-<p><a href="https://docs.aws.amazon.com/cli/latest/reference/autoscaling/update-auto-scaling-group.html">AWS Autoscaling 공식문서</a>
+<p><div class="highlight"><pre><span></span><code>aws<span class="w"> </span>autoscaling<span class="w"> </span>update-auto-scaling-group<span class="w"> </span>--auto-scaling-group-name<span class="w"> </span>&lt;ASG_NAME&gt;<span class="w"> </span>--min-size<span class="w"> </span><span class="m">1</span><span class="w"> </span>--max-size<span class="w"> </span><span class="m">5</span><span class="w"> </span>--region<span class="w"> </span>&lt;REGION&gt;
+</code></pre></div>
+<a href="https://docs.aws.amazon.com/cli/latest/reference/autoscaling/update-auto-scaling-group.html">AWS Autoscaling 공식문서</a>
 <a href="https://aws.github.io/aws-eks-best-practices/ko/cluster-autoscaling/">AWS Github.io Cluster Autoscaler</a> </p>
 
 

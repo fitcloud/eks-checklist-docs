@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1931,24 +1927,24 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>서비스 계정(ServiceAccount)에 IRSA 또는 EKS Pod Identity 관련 annotation이 설정되어 있는지 확인합니다.</p>
-<p><strong>Example</strong></p>
-<pre><code class="language-bash">kubectl get sa --all-namespaces -o jsonpath=&quot;{range .items[*]}{.metadata.namespace}{'\t'}{.metadata.name}{'\t'}{.metadata.annotations.eks\.amazonaws\.com/role-arn}{'\t'}{.metadata.annotations.eks\.amazonaws\.com/identity}{'\t'}{.metadata.annotations.eks\.amazonaws\.com/audience}{'\n'}{end}&quot; | grep -v &quot;kube-system&quot;
-</code></pre>
+<p><strong>Example</strong>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>sa<span class="w"> </span>--all-namespaces<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s2">&quot;{range .items[*]}{.metadata.namespace}{&#39;\t&#39;}{.metadata.name}{&#39;\t&#39;}{.metadata.annotations.eks\.amazonaws\.com/role-arn}{&#39;\t&#39;}{.metadata.annotations.eks\.amazonaws\.com/identity}{&#39;\t&#39;}{.metadata.annotations.eks\.amazonaws\.com/audience}{&#39;\n&#39;}{end}&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;kube-system&quot;</span>
+</code></pre></div></p>
 <ul>
 <li>출력 결과에서 모든 항목이 비어 있다면, 해당 서비스 계정은 IRSA나 Pod Identity를 사용하지 않는 것입니다.</li>
 </ul>
 <h2 id="mitigation">Mitigation</h2>
 <p><strong>1. IRSA 구성</strong></p>
 <p>IRSA를 구성하려면 IAM Role과 서비스 계정을 연결하는 작업이 필요합니다.</p>
-<p>IAM OIDC 공급자 생성</p>
-<pre><code class="language-bash">aws eks describe-cluster --name &lt;cluster-name&gt; --query &quot;cluster.identity.oidc.issuer&quot; --output text
-</code></pre>
+<p>IAM OIDC 공급자 생성
+<div class="highlight"><pre><span></span><code>aws<span class="w"> </span>eks<span class="w"> </span>describe-cluster<span class="w"> </span>--name<span class="w"> </span>&lt;cluster-name&gt;<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;cluster.identity.oidc.issuer&quot;</span><span class="w"> </span>--output<span class="w"> </span>text
+</code></pre></div></p>
 <p>IAM Role 생성 (Trust Policy 포함)</p>
 <p>Trust Policy는 서비스 계정이 역할을 사용할 수 있도록 허용하는 문서입니다.</p>
-<p>서비스 계정에 annotation 추가</p>
-<pre><code class="language-bash">kubectl annotate serviceaccount &lt;service-account-name&gt; \
-  -n &lt;namespace&gt; eks.amazonaws.com/role-arn=arn:aws:iam::&lt;account-id&gt;:role/&lt;role-name&gt;
-</code></pre>
+<p>서비스 계정에 annotation 추가
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>annotate<span class="w"> </span>serviceaccount<span class="w"> </span>&lt;service-account-name&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-n<span class="w"> </span>&lt;namespace&gt;<span class="w"> </span>eks.amazonaws.com/role-arn<span class="o">=</span>arn:aws:iam::&lt;account-id&gt;:role/&lt;role-name&gt;
+</code></pre></div></p>
 <p><strong>2. EKS Pod Identity 사용</strong></p>
 <p>EKS Pod Identity는 AWS CLI 또는 Console에서 설정 가능하며, 최근 IRSA를 대체할 수 있는 방식으로 자리 잡고 있습니다.</p>
 <p><a href="https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html">EKS Pod Identity 공식 문서</a>

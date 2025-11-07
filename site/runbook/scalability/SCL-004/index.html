@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1923,13 +1919,13 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>중요 Pod가 실행 중인 노드에 삭제 방지용 label이 설정되어 있는지 확인</p>
-<pre><code class="language-bash">kubectl get nodes --show-labels | grep do-not-disrupt
-</code></pre>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>nodes<span class="w"> </span>--show-labels<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="k">do</span>-not-disrupt
+</code></pre></div>
 <h2 id="mitigation">Mitigation</h2>
 <p>중요 노드에 karpenter.sh/do-not-disrupt=true label 추가</p>
 <p>nodepool 또는 Cluster Autoscaler 설정에서 해당 노드는 스케일 인 대상 제외 처리</p>
-<pre><code class="language-bash">kubectl label node &lt;NODE_NAME&gt; karpenter.sh/do-not-disrupt: &quot;true&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>label<span class="w"> </span>node<span class="w"> </span>&lt;NODE_NAME&gt;<span class="w"> </span>karpenter.sh/do-not-disrupt:<span class="w"> </span><span class="s2">&quot;true&quot;</span>
+</code></pre></div>
 
 
 

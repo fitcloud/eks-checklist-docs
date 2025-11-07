@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1923,47 +1919,47 @@
 <li>불변성 확보: readOnlyRootFilesystem 설정하면, 루트 디렉터리에 쓰기가 불가능 해지기 때문에 시스템 전반에 영향을 미치는 변경이 원천 차단됨</li>
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
-<p>읽기 전용 파일시스템을 사용중인지 확인하세요</p>
-<pre><code class="language-bash">kubectl get pods --all-namespaces -o json | jq '
-  .items[] |
-  select(.metadata.namespace != &quot;kube-system&quot;) |
-  {
-    namespace: .metadata.namespace,
-    pod: .metadata.name,
-    containers: [
-      .spec.containers[] |
-      select(
-        (.securityContext.readOnlyRootFilesystem != true)
-      ) |
-      .name
-    ]
-  } | select(.containers | length &gt; 0)'
-</code></pre>
+<p>읽기 전용 파일시스템을 사용중인지 확인하세요
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>--all-namespaces<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;</span>
+<span class="s1">  .items[] |</span>
+<span class="s1">  select(.metadata.namespace != &quot;kube-system&quot;) |</span>
+<span class="s1">  {</span>
+<span class="s1">    namespace: .metadata.namespace,</span>
+<span class="s1">    pod: .metadata.name,</span>
+<span class="s1">    containers: [</span>
+<span class="s1">      .spec.containers[] |</span>
+<span class="s1">      select(</span>
+<span class="s1">        (.securityContext.readOnlyRootFilesystem != true)</span>
+<span class="s1">      ) |</span>
+<span class="s1">      .name</span>
+<span class="s1">    ]</span>
+<span class="s1">  } | select(.containers | length &gt; 0)&#39;</span>
+</code></pre></div></p>
 <h2 id="mitigation">Mitigation</h2>
 <p>읽기 전용 파일시스템 설정을 추가하세요</p>
-<pre><code class="language-yaml">apiVersion: v1
-kind: Pod
-metadata:
-  name: security-context-demo
-spec:
-  securityContext:
-    runAsUser: 1000
-    runAsGroup: 3000
-    fsGroup: 2000
-    supplementalGroups: [4000]
-  volumes:
-  - name: sec-ctx-vol
-    emptyDir: {}
-  containers:
-  - name: sec-ctx-demo
-    image: busybox:1.28
-    command: [ &quot;sh&quot;, &quot;-c&quot;, &quot;sleep 1h&quot; ]
-    volumeMounts:
-    - name: sec-ctx-vol
-      mountPath: /data/demo
-securityContext:
-  readOnlyRootFilesystem: true
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Pod</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">security-context-demo</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">securityContext</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runAsUser</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
+<span class="w">    </span><span class="nt">runAsGroup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3000</span>
+<span class="w">    </span><span class="nt">fsGroup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span>
+<span class="w">    </span><span class="nt">supplementalGroups</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">4000</span><span class="p p-Indicator">]</span>
+<span class="w">  </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sec-ctx-vol</span>
+<span class="w">    </span><span class="nt">emptyDir</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">containers</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sec-ctx-demo</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">busybox:1.28</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="w"> </span><span class="s">&quot;sh&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;-c&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;sleep</span><span class="nv"> </span><span class="s">1h&quot;</span><span class="w"> </span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">volumeMounts</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sec-ctx-vol</span>
+<span class="w">      </span><span class="nt">mountPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/demo</span>
+<span class="nt">securityContext</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">readOnlyRootFilesystem</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
 <p><a href="https://kubernetes.io/docs/tasks/configure-pod-container/security-context/">Kubernetes 공식 문서 - Security Context</a>
 <a href="https://kubernetes.io/blog/2021/10/05/nsa-cisa-kubernetes-hardening-guidance/#immutable-container-filesystems">Kubernetes 공식 문서 - Immutable container filesystems</a>
 <a href="https://aws.amazon.com/ko/blogs/tech/implementing-pod-security-standards-in-amazon-eks/">Amazon EKS 환경에서 Pod Security Standard 구현하기</a></p>

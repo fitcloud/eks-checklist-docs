@@ -33,13 +33,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1923,17 +1919,17 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>Kubecost가 설치되어 있는지 확인하세요</p>
-<pre><code class="language-bash">kubectl get deployments -n kubecost | grep &quot;kubecost&quot; &gt;/dev/null &amp;&amp; echo &quot;Kubecost is installed&quot; || echo &quot;Kubecost is not installed&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>deployments<span class="w"> </span>-n<span class="w"> </span>kubecost<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;kubecost&quot;</span><span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Kubecost is installed&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Kubecost is not installed&quot;</span>
+</code></pre></div>
 <h2 id="mitigation">Mitigation</h2>
 <p>Kubecost 설치
 Helm을 사용하여 Kubecost 설치 및 확인 진행</p>
-<pre><code class="language-bash">helm repo add kubecost https://kubecost.github.io/cost-analyzer/
-helm repo update
-helm install kubecost kubecost/cost-analyzer --namespace kubecost --create-namespace
-kubectl get deployments -n kubecost | grep &quot;kubecost&quot;
-</code></pre>
-<p><a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/cost-monitoring-kubecost.html">Kubecost 설치</a></p>
+<p><div class="highlight"><pre><span></span><code>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>kubecost<span class="w"> </span>https://kubecost.github.io/cost-analyzer/
+helm<span class="w"> </span>repo<span class="w"> </span>update
+helm<span class="w"> </span>install<span class="w"> </span>kubecost<span class="w"> </span>kubecost/cost-analyzer<span class="w"> </span>--namespace<span class="w"> </span>kubecost<span class="w"> </span>--create-namespace
+kubectl<span class="w"> </span>get<span class="w"> </span>deployments<span class="w"> </span>-n<span class="w"> </span>kubecost<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;kubecost&quot;</span>
+</code></pre></div>
+<a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/cost-monitoring-kubecost.html">Kubecost 설치</a></p>
 
 
 

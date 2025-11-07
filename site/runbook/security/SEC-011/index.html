@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1927,45 +1923,45 @@ EKS에서는 AWS KMS를 연동하여 etcd at-rest encryption을 설정하거나,
 <h2 id="diagnosis">Diagnosis</h2>
 <p>EKS 클러스터가 at-rest encryption을 사용하고 있는지 확인
 EKS는 클러스터 생성 시 encryptionConfig를 통해 KMS 키와 연동된 암호화를 설정할 수 있습니다. 다음 명령어로 확인</p>
-<pre><code class="language-bash"># 클러스터에 설정된 encryption 정보 확인
-aws eks describe-cluster --name &lt;cluster-name&gt; --query &quot;cluster.encryptionConfig&quot;
-</code></pre>
-<p>결과 예시:</p>
-<pre><code class="language-json">[
-  {
-    &quot;resources&quot;: [&quot;secrets&quot;],
-    &quot;provider&quot;: {
-      &quot;keyArn&quot;: &quot;arn:aws:kms:region:account-id:key/key-id&quot;
-    }
-  }
-]
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="c1"># 클러스터에 설정된 encryption 정보 확인</span>
+aws<span class="w"> </span>eks<span class="w"> </span>describe-cluster<span class="w"> </span>--name<span class="w"> </span>&lt;cluster-name&gt;<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;cluster.encryptionConfig&quot;</span>
+</code></pre></div>
+<p>결과 예시:
+<div class="highlight"><pre><span></span><code><span class="p">[</span>
+<span class="w">  </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;resources&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;secrets&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;provider&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;keyArn&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;arn:aws:kms:region:account-id:key/key-id&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div></p>
 <p>외부 Secret 관리자 사용 여부
 AWS Secrets Manager, Parameter Store, Vault 등 연동 여부 확인</p>
-<p>external-secrets, secrets-store-csi-driver 등의 사용 확인</p>
-<pre><code class="language-bash">kubectl get pods -A | grep external-secrets
-kubectl get pods -A | grep csi-secrets-store
-</code></pre>
+<p>external-secrets, secrets-store-csi-driver 등의 사용 확인
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-A<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>external-secrets
+kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-A<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>csi-secrets-store
+</code></pre></div></p>
 <h2 id="mitigation">Mitigation</h2>
 <p>EKS 클러스터 생성 시 KMS 연동</p>
 <p>Kubernetes Secret 객체를 AWS Secrets Manager와 연동 가능하도록
 external-secrets 또는 secrets-store-csi-driver 사용</p>
 <p><strong>external-secrets example</strong></p>
-<pre><code class="language-yaml">apiVersion: external-secrets.io/v1beta1
-kind: ExternalSecret
-metadata:
-  name: db-credentials
-spec:
-  secretStoreRef:
-    name: aws-secrets-manager
-    kind: SecretStore
-  target:
-    name: db-secret
-  data:
-    - secretKey: password
-      remoteRef:
-        key: my-app/db-password
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">external-secrets.io/v1beta1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ExternalSecret</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db-credentials</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">secretStoreRef</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aws-secrets-manager</span>
+<span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SecretStore</span>
+<span class="w">  </span><span class="nt">target</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db-secret</span>
+<span class="w">  </span><span class="nt">data</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">secretKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">password</span>
+<span class="w">      </span><span class="nt">remoteRef</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-app/db-password</span>
+</code></pre></div>
 <p><strong>Before</strong></p>
 <p>Secret은 Base64 인코딩 상태로 ETCD에 저장 → 위험
 키 관리, 로테이션 불가</p>

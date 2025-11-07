@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1922,11 +1918,11 @@
 <li>보안 사고: 클러스터 접근 권한이 잘못 구성될 경우, 비인가 사용자가 클러스터에 접근할 수 있어 보안 사고로 이어질 수 있습니다.</li>
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
-<pre><code class="language-bash"># EKS Configmap aws-auth 확인
-kubectl get configmap aws-auth -n kube-system -o yaml
-# EKS Cluster Access Entry 확인
-aws eks list-access-entries --cluster-name &lt;cluster-name&gt;
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="c1"># EKS Configmap aws-auth 확인</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>configmap<span class="w"> </span>aws-auth<span class="w"> </span>-n<span class="w"> </span>kube-system<span class="w"> </span>-o<span class="w"> </span>yaml
+<span class="c1"># EKS Cluster Access Entry 확인</span>
+aws<span class="w"> </span>eks<span class="w"> </span>list-access-entries<span class="w"> </span>--cluster-name<span class="w"> </span>&lt;cluster-name&gt;
+</code></pre></div>
 <h2 id="mitigation">Mitigation</h2>
 <ul>
 <li>

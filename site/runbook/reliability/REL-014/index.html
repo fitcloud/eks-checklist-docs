@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1923,32 +1919,32 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>다수의 가용 영역에 데이터 플레인 노드가 배포되어 있는지 확인하세요</p>
-<pre><code class="language-bash">kubectl describe node | grep &quot;topology.kubernetes.io/zone&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>describe<span class="w"> </span>node<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;topology.kubernetes.io/zone&quot;</span>
+</code></pre></div>
 <h2 id="mitigation">Mitigation</h2>
 <p>다수의 가용 영역에 데이터 플레인 노드를 배포하세요</p>
 <p><strong>example</strong></p>
-<p>nodegroup 사용 시</p>
-<pre><code class="language-bash">eksctl create nodegroup \
-  --cluster &lt;Cluster_Name&gt; \
-  --name &lt;Nodegroup_Name&gt; \
-  --node-type &lt;Instance_Type&gt; \
-  --nodes 3 \
-  --zones ap-northeast-2a,ap-northeast-2b,ap-northeast-2c
-</code></pre>
-<p>Karpenter 사용 시</p>
-<pre><code class="language-yaml">apiVersion: karpenter.sh/v1beta1
-kind: NodePool
-metadata:
-  name: Nodepool
-spec:
-  template:
-    spec:
-      requirements:
-        - key: topology.kubernetes.io/zone
-          operator: In
-          values: [&quot;ap-northeast-2a&quot;, &quot;ap-northeast-2b&quot;, &quot;ap-northeast-2c&quot;]
-</code></pre>
+<p>nodegroup 사용 시
+<div class="highlight"><pre><span></span><code>eksctl<span class="w"> </span>create<span class="w"> </span>nodegroup<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--cluster<span class="w"> </span>&lt;Cluster_Name&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--name<span class="w"> </span>&lt;Nodegroup_Name&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--node-type<span class="w"> </span>&lt;Instance_Type&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--nodes<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--zones<span class="w"> </span>ap-northeast-2a,ap-northeast-2b,ap-northeast-2c
+</code></pre></div></p>
+<p>Karpenter 사용 시
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">karpenter.sh/v1beta1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NodePool</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Nodepool</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">requirements</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">topology.kubernetes.io/zone</span>
+<span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">In</span>
+<span class="w">          </span><span class="nt">values</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;ap-northeast-2a&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;ap-northeast-2b&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;ap-northeast-2c&quot;</span><span class="p p-Indicator">]</span>
+</code></pre></div></p>
 <p><a href="https://docs.aws.amazon.com/eks/latest/best-practices/data-plane.html">EKS 모범사례 Multiple AZ</a>
 <a href="https://karpenter.sh/docs/concepts/nodepools/">Karpenter 공식 문서</a></p>
 

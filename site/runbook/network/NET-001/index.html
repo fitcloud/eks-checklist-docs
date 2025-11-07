@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1924,8 +1920,8 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>EKS 클러스터에서 사용할 수 있는 Subnet과 사용가능한 IP 갯수를 확인하세요</p>
-<pre><code class="language-bash">aws ec2 describe-subnets --subnet-ids $(aws eks describe-cluster --name &lt;CLUSTER_NAME&gt; --query &quot;cluster.resourcesVpcConfig.subnetIds&quot; --output text) --query 'Subnets[*].{ID:SubnetId, CIDR:CidrBlock, AvailableIPs:AvailableIpAddressCount}' --output table
-</code></pre>
+<div class="highlight"><pre><span></span><code>aws<span class="w"> </span>ec2<span class="w"> </span>describe-subnets<span class="w"> </span>--subnet-ids<span class="w"> </span><span class="k">$(</span>aws<span class="w"> </span>eks<span class="w"> </span>describe-cluster<span class="w"> </span>--name<span class="w"> </span>&lt;CLUSTER_NAME&gt;<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;cluster.resourcesVpcConfig.subnetIds&quot;</span><span class="w"> </span>--output<span class="w"> </span>text<span class="k">)</span><span class="w"> </span>--query<span class="w"> </span><span class="s1">&#39;Subnets[*].{ID:SubnetId, CIDR:CidrBlock, AvailableIPs:AvailableIpAddressCount}&#39;</span><span class="w"> </span>--output<span class="w"> </span>table
+</code></pre></div>
 <h2 id="mitigation">Mitigation</h2>
 <p>IP 부족 시, 서브넷을 추가하거나 VPC에 새로운 CIDR 블록을 추가하세요.</p>
 <p><a href="https://docs.aws.amazon.com/eks/latest/best-practices/ip-opt.html">EKS IP 최적화</a>

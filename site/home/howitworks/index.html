@@ -31,13 +31,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1820,49 +1816,49 @@
 <h2 id="_2">🔍 작동 방식</h2>
 <p><strong>1. AWS SDK for Go를 통한 EKS 클러스터 정보 가져오기</strong></p>
 <p>EKS 클러스터를 점검하려면 우선 <strong>AWS SDK for Go</strong>를 통해 EKS 클러스터에 대한 정보를 가져옵니다. 이를 통해 클러스터의 버전, 상태, 설정 등 정보를 조회할 수 있습니다.</p>
-<pre><code class="language-go">type EksCluster struct {
-    Cluster *types.Cluster
-}
+<div class="highlight"><pre><span></span><code><span class="kd">type</span><span class="w"> </span><span class="nx">EksCluster</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Cluster</span><span class="w"> </span><span class="o">*</span><span class="nx">types</span><span class="p">.</span><span class="nx">Cluster</span>
+<span class="p">}</span>
 
-func Describe(clusterName string, cfg aws.Config) EksCluster {
-    eksClient := eks.NewFromConfig(cfg)
-    output, err := eksClient.DescribeCluster(context.TODO(), &amp;eks.DescribeClusterInput{
-        Name: &amp;clusterName,
-    })
+<span class="kd">func</span><span class="w"> </span><span class="nx">Describe</span><span class="p">(</span><span class="nx">clusterName</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">cfg</span><span class="w"> </span><span class="nx">aws</span><span class="p">.</span><span class="nx">Config</span><span class="p">)</span><span class="w"> </span><span class="nx">EksCluster</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">eksClient</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">eks</span><span class="p">.</span><span class="nx">NewFromConfig</span><span class="p">(</span><span class="nx">cfg</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">output</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">eksClient</span><span class="p">.</span><span class="nx">DescribeCluster</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">TODO</span><span class="p">(),</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">eks</span><span class="p">.</span><span class="nx">DescribeClusterInput</span><span class="p">{</span>
+<span class="w">        </span><span class="nx">Name</span><span class="p">:</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">clusterName</span><span class="p">,</span>
+<span class="w">    </span><span class="p">})</span>
 
-    if err != nil {
-        panic(err.Error())
-    }
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nb">panic</span><span class="p">(</span><span class="nx">err</span><span class="p">.</span><span class="nx">Error</span><span class="p">())</span>
+<span class="w">    </span><span class="p">}</span>
 
-    eksCluster := EksCluster{Cluster: output.Cluster}
+<span class="w">    </span><span class="nx">eksCluster</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">EksCluster</span><span class="p">{</span><span class="nx">Cluster</span><span class="p">:</span><span class="w"> </span><span class="nx">output</span><span class="p">.</span><span class="nx">Cluster</span><span class="p">}</span>
 
-    return eksCluster
-}
-</code></pre>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nx">eksCluster</span>
+<span class="p">}</span>
+</code></pre></div>
 <p><strong>2. Kubernetes Go Client를 사용한 클러스터 상태 점검</strong></p>
 <p>Kubernetes Go Client를 사용하여 클러스터의 상태를 직접 점검합니다. EKS 클러스터에서 실행 중인 리소스 파드(pod), 노드(node), 서비스(service) 등의 상태를 확인합니다.</p>
-<pre><code class="language-go">config, err := rest.InClusterConfig()
-if err != nil {
-    log.Fatal(&quot;Failed to get in-cluster config: &quot;, err)
-}
-clientset, err := kubernetes.NewForConfig(config)
-if err != nil {
-    log.Fatal(&quot;Failed to create Kubernetes client: &quot;, err)
-}
-pods, err := clientset.CoreV1().Pods(&quot;&quot;).List(context.TODO(), metav1.ListOptions{})
-if err != nil {
-    log.Fatal(&quot;Failed to list pods: &quot;, err)
-}
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nx">config</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">rest</span><span class="p">.</span><span class="nx">InClusterConfig</span><span class="p">()</span>
+<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatal</span><span class="p">(</span><span class="s">&quot;Failed to get in-cluster config: &quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="nx">clientset</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">kubernetes</span><span class="p">.</span><span class="nx">NewForConfig</span><span class="p">(</span><span class="nx">config</span><span class="p">)</span>
+<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatal</span><span class="p">(</span><span class="s">&quot;Failed to create Kubernetes client: &quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="nx">pods</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">clientset</span><span class="p">.</span><span class="nx">CoreV1</span><span class="p">().</span><span class="nx">Pods</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">).</span><span class="nx">List</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">TODO</span><span class="p">(),</span><span class="w"> </span><span class="nx">metav1</span><span class="p">.</span><span class="nx">ListOptions</span><span class="p">{})</span>
+<span class="k">if</span><span class="w"> </span><span class="nx">err</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">nil</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">log</span><span class="p">.</span><span class="nx">Fatal</span><span class="p">(</span><span class="s">&quot;Failed to list pods: &quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">err</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
 <p><strong>3. Cobra를 사용한 CLI 인터페이스 제공</strong></p>
 <p>Cobra 라이브러리는 CLI 명령어를 생성하고, 사용자가 다양한 옵션을 통해 클러스터 점검을 실행할 수 있도록 돕습니다.</p>
-<pre><code class="language-bash">eks-checklist --context my-cluster --output text 
-</code></pre>
-<p>여기서 --context는 kubeconfig에서 사용할 클러스터 컨텍스트를 지정하고, --profile은 AWS CLI 프로파일을 설정합니다. --output 옵션을 통해 출력 형식을 text나 html로 설정할 수 있습니다</p>
+<p><div class="highlight"><pre><span></span><code>eks-checklist<span class="w"> </span>--context<span class="w"> </span>my-cluster<span class="w"> </span>--output<span class="w"> </span>text<span class="w"> </span>
+</code></pre></div>
+여기서 --context는 kubeconfig에서 사용할 클러스터 컨텍스트를 지정하고, --profile은 AWS CLI 프로파일을 설정합니다. --output 옵션을 통해 출력 형식을 text나 html로 설정할 수 있습니다</p>
 <p><strong>4. 결과 출력 및 피드백</strong></p>
 <p>점검 결과는 사용자가 설정한 출력 형식에 맞게 표시됩니다. 예를 들어, text 형식으로 출력하면 터미널에 점검 결과를 표시하고, html 형식으로 출력하면 HTML로 점검 리포트를 생성하여 파일로 저장할 수 있습니다.</p>
-<pre><code class="language-bash">eks-checklist --context my-cluster --output html &gt; eks-checklist-report.html
-</code></pre>
+<div class="highlight"><pre><span></span><code>eks-checklist<span class="w"> </span>--context<span class="w"> </span>my-cluster<span class="w"> </span>--output<span class="w"> </span>html<span class="w"> </span>&gt;<span class="w"> </span>eks-checklist-report.html
+</code></pre></div>
 
 
 

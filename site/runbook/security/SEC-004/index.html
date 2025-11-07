@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1930,16 +1926,16 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>노드 Role에 정책을 확인합니다.</p>
-<pre><code class="language-bash">aws iam list-attached-role-policies --role-name &lt;노드 역할 이름&gt; --query &quot;AttachedPolicies[].PolicyName&quot; --output text
-</code></pre>
+<div class="highlight"><pre><span></span><code>aws<span class="w"> </span>iam<span class="w"> </span>list-attached-role-policies<span class="w"> </span>--role-name<span class="w"> </span>&lt;노드<span class="w"> </span>역할<span class="w"> </span>이름&gt;<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;AttachedPolicies[].PolicyName&quot;</span><span class="w"> </span>--output<span class="w"> </span>text
+</code></pre></div>
 <h2 id="mitigation">Mitigation</h2>
 <p>데이터 플레인 노드에 불필요하게 부여된 정책을 제거하세요.</p>
-<p>불필요한 정책 제거</p>
-<pre><code class="language-bash">aws iam detach-role-policy \
-  --role-name &lt;MyNodeRole&gt; \
-  --policy-arn arn:aws:iam::aws:policy/&lt;UnwantedPolicyName&gt;
-</code></pre>
-<p><strong>반드시 AmazonEKSWorkerNodePolicy, AmazonEKS_CNI_Policy,AmazonEC2ContainerRegistryReadOnly 외의 정책은 제거해야 합니다.</strong></p>
+<p>불필요한 정책 제거
+<div class="highlight"><pre><span></span><code>aws<span class="w"> </span>iam<span class="w"> </span>detach-role-policy<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--role-name<span class="w"> </span>&lt;MyNodeRole&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--policy-arn<span class="w"> </span>arn:aws:iam::aws:policy/&lt;UnwantedPolicyName&gt;
+</code></pre></div>
+<strong>반드시 AmazonEKSWorkerNodePolicy, AmazonEKS_CNI_Policy,AmazonEC2ContainerRegistryReadOnly 외의 정책은 제거해야 합니다.</strong></p>
 <p><a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/create-node-role.html">Amazon EKS 데이터 플레인 권한</a></p>
 
 

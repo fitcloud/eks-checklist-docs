@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1925,21 +1921,21 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>Karpenter가 설치되어 있는지 확인하세요</p>
-<pre><code class="language-bash">kubectl get deployments -n karpenter | grep &quot;karpenter&quot; &gt;/dev/null &amp;&amp; echo &quot;Karpenter is installed&quot; || echo &quot;Karpenter is not installed&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>deployments<span class="w"> </span>-n<span class="w"> </span>karpenter<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;karpenter&quot;</span><span class="w"> </span>&gt;/dev/null<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Karpenter is installed&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Karpenter is not installed&quot;</span>
+</code></pre></div>
 <h2 id="mitigation">Mitigation</h2>
 <p>Karpenter를 설치하세요</p>
-<p>example</p>
-<pre><code class="language-bash">helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --version &quot;${KARPENTER_VERSION}&quot; --namespace &quot;${KARPENTER_NAMESPACE}&quot; --create-namespace \
-  --set &quot;settings.clusterName=${CLUSTER_NAME}&quot; \
-  --set &quot;settings.interruptionQueue=${CLUSTER_NAME}&quot; \
-  --set controller.resources.requests.cpu=1 \
-  --set controller.resources.requests.memory=1Gi \
-  --set controller.resources.limits.cpu=1 \
-  --set controller.resources.limits.memory=1Gi \
-  --wait
-</code></pre>
-<p><a href="https://karpenter.sh/docs/getting-started/getting-started-with-karpenter/#4-install-karpenter">Karpenter 설치</a>
+<p>example
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>karpenter<span class="w"> </span>oci://public.ecr.aws/karpenter/karpenter<span class="w"> </span>--version<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">KARPENTER_VERSION</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>--namespace<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">KARPENTER_NAMESPACE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>--create-namespace<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span><span class="s2">&quot;settings.clusterName=</span><span class="si">${</span><span class="nv">CLUSTER_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span><span class="s2">&quot;settings.interruptionQueue=</span><span class="si">${</span><span class="nv">CLUSTER_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>controller.resources.requests.cpu<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>controller.resources.requests.memory<span class="o">=</span>1Gi<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>controller.resources.limits.cpu<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>controller.resources.limits.memory<span class="o">=</span>1Gi<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--wait
+</code></pre></div>
+<a href="https://karpenter.sh/docs/getting-started/getting-started-with-karpenter/#4-install-karpenter">Karpenter 설치</a>
 <a href="https://docs.aws.amazon.com/ko_kr/eks/latest/best-practices/karpenter.html">AWS 모범사례 Karpenter</a></p>
 
 

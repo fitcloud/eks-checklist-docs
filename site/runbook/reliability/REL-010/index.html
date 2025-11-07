@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1923,18 +1919,18 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>현재 로그가 반영구 저장소에 저장되고 있는지 확인</p>
-<pre><code class="language-bash">kubectl logs &lt;pod-name&gt; --follow
-</code></pre>
-<p>로그가 제대로 반영구 저장소에 전송되지 않는다면, 설정을 점검해야 합니다.</p>
+<p><div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>logs<span class="w"> </span>&lt;pod-name&gt;<span class="w"> </span>--follow
+</code></pre></div>
+로그가 제대로 반영구 저장소에 전송되지 않는다면, 설정을 점검해야 합니다.</p>
 <h2 id="mitigation">Mitigation</h2>
 <p>애플리케이션 로그를 CloudWatch Logs나 Opensearch와 같은 반영구 저장소에 전송하도록 설정합니다.</p>
 <p><strong>Example (Fluent Bit 사용 시)</strong></p>
-<pre><code class="language-yaml">[OUTPUT]
-    Name            es
-    Match           *
-    Region          your-region
-    Total_File_Size 50M
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">[</span><span class="nv">OUTPUT</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">Name            es</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">Match           *</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">Region          your-region</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">Total_File_Size 50M</span>
+</code></pre></div>
 
 
 

@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1925,20 +1921,20 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>ClusterAutoscaler가 설치되어 있는지 확인하세요</p>
-<pre><code class="language-bash">kubectl get deployment -n kube-system | grep cluster-autoscaler
-kubectl get pods -n kube-system | grep cluster-autoscaler
-</code></pre>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>deployment<span class="w"> </span>-n<span class="w"> </span>kube-system<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>cluster-autoscaler
+kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>kube-system<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>cluster-autoscaler
+</code></pre></div>
 <h2 id="mitigation">Mitigation</h2>
 <p>ClusterAutosacler를 설치하세요</p>
-<p><strong>example</strong></p>
-<pre><code class="language-bash">helm repo add autoscaler https://kubernetes.github.io/autoscaler
-helm repo update
-helm install cluster-autoscaler autoscaler/cluster-autoscaler \
-  --namespace kube-system \
-  --set autoDiscovery.clusterName=&lt;cluster-name&gt; \
-  --set awsRegion=&lt;region&gt; \
-  --set rbac.create=true
-</code></pre>
+<p><strong>example</strong>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>repo<span class="w"> </span>add<span class="w"> </span>autoscaler<span class="w"> </span>https://kubernetes.github.io/autoscaler
+helm<span class="w"> </span>repo<span class="w"> </span>update
+helm<span class="w"> </span>install<span class="w"> </span>cluster-autoscaler<span class="w"> </span>autoscaler/cluster-autoscaler<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--namespace<span class="w"> </span>kube-system<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>autoDiscovery.clusterName<span class="o">=</span>&lt;cluster-name&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span><span class="nv">awsRegion</span><span class="o">=</span>&lt;region&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>rbac.create<span class="o">=</span><span class="nb">true</span>
+</code></pre></div></p>
 <p><a href="https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/cloudprovider/aws/README.md">Cluster Autoscaler 설치</a>
 <a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/autoscaling.html">Kubernetes Autoscaling</a></p>
 

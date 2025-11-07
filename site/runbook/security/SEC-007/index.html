@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1925,12 +1921,12 @@ Audit Log를 비활성화하면 클러스터의 보안 및 운영 상태를 추�
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>Audit Log가 비활성화되어 있는지 확인하려면 아래 명령어를 사용하거나 제공된 코드를 실행하세요</p>
-<pre><code class="language-bash">aws eks describe-cluster --name &lt;클러스터 이름&gt; --query &quot;cluster.logging.clusterLogging[?types[?contains(@, 'audit')]].{AuditLog:enabled}&quot; --output table
-</code></pre>
+<div class="highlight"><pre><span></span><code>aws<span class="w"> </span>eks<span class="w"> </span>describe-cluster<span class="w"> </span>--name<span class="w"> </span>&lt;클러스터<span class="w"> </span>이름&gt;<span class="w"> </span>--query<span class="w"> </span><span class="s2">&quot;cluster.logging.clusterLogging[?types[?contains(@, &#39;audit&#39;)]].{AuditLog:enabled}&quot;</span><span class="w"> </span>--output<span class="w"> </span>table
+</code></pre></div>
 <h2 id="mitigation">Mitigation</h2>
 <p>EKS Cluster Audit log 활성화</p>
-<pre><code class="language-bash">aws eks update-cluster-config --region &lt;region&gt; --name &lt;클러스터 이름&gt; --logging '{&quot;clusterLogging&quot;:[{&quot;types&quot;:[&quot;audit&quot;],&quot;enabled&quot;:true}]}'
-</code></pre>
+<div class="highlight"><pre><span></span><code>aws<span class="w"> </span>eks<span class="w"> </span>update-cluster-config<span class="w"> </span>--region<span class="w"> </span>&lt;region&gt;<span class="w"> </span>--name<span class="w"> </span>&lt;클러스터<span class="w"> </span>이름&gt;<span class="w"> </span>--logging<span class="w"> </span><span class="s1">&#39;{&quot;clusterLogging&quot;:[{&quot;types&quot;:[&quot;audit&quot;],&quot;enabled&quot;:true}]}&#39;</span>
+</code></pre></div>
 <p><a href="hhttps://docs.aws.amazon.com/ko_kr/eks/latest/best-practices/auditing-and-logging.html">EKS 감사 및 로깅</a>
 <a href="https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html#enabling-control-plane-log-export">EKS Auditlog 설정 - AWS CLI 부분 참조</a>
 <a href="https://kubernetes.io/docs/tasks/debug/debug-cluster/audit/">Kubernetes Audit</a></p>

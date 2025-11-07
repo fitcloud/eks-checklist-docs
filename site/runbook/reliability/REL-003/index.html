@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1924,34 +1920,34 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>아래 명령어로 affinity 및 spread 설정이 없는 Pod를 탐지할 수 있습니다.</p>
-<pre><code class="language-bash">kubectl get pods -A -o json | jq -r '
-.items[] | select(
-  (.spec.affinity | not) and 
-  ((.spec.topologySpreadConstraints // []) | length == 0)
-) | &quot;Namespace: \(.metadata.namespace) | Pod: \(.metadata.name) - 분산 설정 없음&quot;'
-</code></pre>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-A<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;</span>
+<span class="s1">.items[] | select(</span>
+<span class="s1">  (.spec.affinity | not) and </span>
+<span class="s1">  ((.spec.topologySpreadConstraints // []) | length == 0)</span>
+<span class="s1">) | &quot;Namespace: \(.metadata.namespace) | Pod: \(.metadata.name) - 분산 설정 없음&quot;&#39;</span>
+</code></pre></div>
 <h2 id="mitigation">Mitigation</h2>
 <p>다음 중 하나 이상 설정을 추가하세요.</p>
-<p><strong>TopologySpreadConstraints 사용</strong></p>
-<pre><code class="language-yaml">topologySpreadConstraints:
-  - maxSkew: 1
-    topologyKey: kubernetes.io/hostname
-    whenUnsatisfiable: DoNotSchedule
-    labelSelector:
-      matchLabels:
-        app: your-app
-</code></pre>
-<p>maxSkew: 허용 가능한 분산 불균형 정도</p>
-<p><strong>PodAntiAffinity 설정</strong></p>
-<pre><code class="language-yaml">affinity:
-  podAntiAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchLabels:
-            app: your-app
-        topologyKey: kubernetes.io/hostname
-</code></pre>
-<p>topologyKey를 기반으로 동일한 app을 가진 Pod가 같은 노드에 배치되지 않도록 함</p>
+<p><strong>TopologySpreadConstraints 사용</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">topologySpreadConstraints</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">maxSkew</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">    </span><span class="nt">topologyKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes.io/hostname</span>
+<span class="w">    </span><span class="nt">whenUnsatisfiable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DoNotSchedule</span>
+<span class="w">    </span><span class="nt">labelSelector</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">your-app</span>
+</code></pre></div>
+maxSkew: 허용 가능한 분산 불균형 정도</p>
+<p><strong>PodAntiAffinity 설정</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">affinity</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">podAntiAffinity</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">requiredDuringSchedulingIgnoredDuringExecution</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">labelSelector</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">matchLabels</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">your-app</span>
+<span class="w">        </span><span class="nt">topologyKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes.io/hostname</span>
+</code></pre></div>
+topologyKey를 기반으로 동일한 app을 가진 Pod가 같은 노드에 배치되지 않도록 함</p>
 <p><a href="https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/">Kubernetes - Assigning Pods to Nodes</a>
 <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/">Kubernetes - Pod Topology Spread Constraints</a></p>
 

@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1923,8 +1919,8 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>다음 명령어로 NodeClaim 리소스를 확인합니다</p>
-<pre><code class="language-bash">kubectl get nodeclaims -A --no-headers 2&gt;/dev/null | grep -q . &amp;&amp; echo &quot;Karpenter가 노드를 프로비저닝한 흔적(NodeClaim 리소스)가 존재합니다.&quot; || echo &quot;Karpenter가 노드를 프로비저닝한 흔적(NodeClaim 리소스)이 존재하지 않습니다.&quot;
-</code></pre>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>nodeclaims<span class="w"> </span>-A<span class="w"> </span>--no-headers<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span>.<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Karpenter가 노드를 프로비저닝한 흔적(NodeClaim 리소스)가 존재합니다.&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Karpenter가 노드를 프로비저닝한 흔적(NodeClaim 리소스)이 존재하지 않습니다.&quot;</span>
+</code></pre></div>
 <p><strong>출력 예시</strong>
 정상적인 경우
 - Karpenter가 노드를 프로비저닝한 흔적(NodeClaim 리소스)가 존재합니다.

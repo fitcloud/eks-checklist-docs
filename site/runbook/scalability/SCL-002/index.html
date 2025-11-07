@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1923,30 +1919,30 @@
 <li>가용성 저하: Karpenter 다운되거나 순간 존재 하지않게되면 워크로드 수요에 따라 노드를 생성하지 못하여 서비스 중단으로 이어질 수 있습니다</li>
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
-<p>Karpenter 전용 노드 그룹을 확인합니다</p>
-<pre><code class="language-bash">kubectl get node -l karpenter.sh/nodepool -o wide
-</code></pre>
-<p>Fargate 사용을 확인합니다</p>
-<pre><code class="language-bash">kubectl get node -l eks.amazonaws.com/fargate-profile -o wide
-</code></pre>
+<p>Karpenter 전용 노드 그룹을 확인합니다
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>node<span class="w"> </span>-l<span class="w"> </span>karpenter.sh/nodepool<span class="w"> </span>-o<span class="w"> </span>wide
+</code></pre></div>
+Fargate 사용을 확인합니다</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>node<span class="w"> </span>-l<span class="w"> </span>eks.amazonaws.com/fargate-profile<span class="w"> </span>-o<span class="w"> </span>wide
+</code></pre></div>
 <h2 id="mitigation">Mitigation</h2>
 <p>Karpenter가 관리하는 노드에 Karpenter를 실행하지 않고 최소 하나 이상의 워커 노드가 있는 소규모 전용 노드 그룹 사용 하여 Kapenter를 설치하거나 'Karpenter' 네임스페이스 대한 Fargate Profile을 생성하여 EKS Fagate에서 Karpenter를 실행하세요.</p>
 <p><strong>example</strong></p>
-<p>전용 노드 그룹</p>
-<pre><code class="language-bash">eksctl create nodegroup \
-  --cluster &lt;클러스터-이름&gt; \
-  --name &lt;노드그룹-이름&gt; \
-  --node-type &lt;인스턴스-타입&gt; \
-  --nodes 2 \
-  --managed
-</code></pre>
-<p>Fargate</p>
-<pre><code class="language-bash">aws eks create-fargate-profile \
-  --cluster-name &lt;your-cluster-name&gt; \
-  --fargate-profile-name karpenter-fargate-profile \
-  --namespace karpenter \
-  --pod-execution-role-arn &lt;your-fargate-pod-execution-role-arn&gt;
-</code></pre>
+<p>전용 노드 그룹
+<div class="highlight"><pre><span></span><code>eksctl<span class="w"> </span>create<span class="w"> </span>nodegroup<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--cluster<span class="w"> </span>&lt;클러스터-이름&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--name<span class="w"> </span>&lt;노드그룹-이름&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--node-type<span class="w"> </span>&lt;인스턴스-타입&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--nodes<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--managed
+</code></pre></div>
+Fargate</p>
+<div class="highlight"><pre><span></span><code>aws<span class="w"> </span>eks<span class="w"> </span>create-fargate-profile<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--cluster-name<span class="w"> </span>&lt;your-cluster-name&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--fargate-profile-name<span class="w"> </span>karpenter-fargate-profile<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--namespace<span class="w"> </span>karpenter<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--pod-execution-role-arn<span class="w"> </span>&lt;your-fargate-pod-execution-role-arn&gt;
+</code></pre></div>
 <p><a href="https://karpenter.sh/docs/getting-started/">Karpenter 시작하기</a></p>
 
 

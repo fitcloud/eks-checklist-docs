@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1924,38 +1920,38 @@
 <li>확장성: iptalbes 모드는 서비스 규모가 커질수록 성능 저하가 발생하는 반면면 IPVS 모드는 커널 레벨에서 로드밸런싱을 수행해 높은 성능과 확장성을 제공하므로, 대규모 클러스터 환경에서 더 효과적으로 동작합니다</li>
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
-<p>kube-proxy-config mode를 확인하세요</p>
-<pre><code class="language-bash">kubectl get cm -n kube-system kube-proxy-config -o json | jq -r '.data.config' | grep -E 'mode'
-</code></pre>
+<p>kube-proxy-config mode를 확인하세요
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>cm<span class="w"> </span>-n<span class="w"> </span>kube-system<span class="w"> </span>kube-proxy-config<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.data.config&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s1">&#39;mode&#39;</span>
+</code></pre></div></p>
 <h2 id="mitigation">Mitigation</h2>
 <p>kube-proxy-config mode를 IPVS로 변경해주세요.</p>
 <p><strong>example</strong></p>
-<p>EKS Add-on kube-proxy 업데이트</p>
-<pre><code class="language-bash">aws eks update-addon --cluster-name $CLUSTER_NAME --addon-name kube-proxy \
-  --configuration-values '{&quot;ipvs&quot;: {&quot;scheduler&quot;: &quot;rr&quot;}, &quot;mode&quot;: &quot;ipvs&quot;}' \
-  --resolve-conflicts OVERWRITE
-</code></pre>
-<p>EKS 클러스터 kube-proxy-config ConfigMap 수정</p>
-<pre><code class="language-bash">kubectl -n kube-system edit cm kube-proxy-config
-</code></pre>
-<pre><code class="language-yaml">  iptables:
-    masqueradeAll: false
-    masqueradeBit: 14
-    minSyncPeriod: 0s
-    syncPeriod: 30s
-  ipvs:
-    excludeCIDRs: null
-    minSyncPeriod: 0s
-    scheduler: &quot;rr&quot;
-    syncPeriod: 30s
-  kind: KubeProxyConfiguration
-  metricsBindAddress: 0.0.0.0:10249
-  mode: &quot;ipvs&quot;
-  nodePortAddresses: null
-  oomScoreAdj: -998
-  portRange: &quot;&quot;
-  udpIdleTimeout: 250ms
-</code></pre>
+<p>EKS Add-on kube-proxy 업데이트
+<div class="highlight"><pre><span></span><code>aws<span class="w"> </span>eks<span class="w"> </span>update-addon<span class="w"> </span>--cluster-name<span class="w"> </span><span class="nv">$CLUSTER_NAME</span><span class="w"> </span>--addon-name<span class="w"> </span>kube-proxy<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--configuration-values<span class="w"> </span><span class="s1">&#39;{&quot;ipvs&quot;: {&quot;scheduler&quot;: &quot;rr&quot;}, &quot;mode&quot;: &quot;ipvs&quot;}&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--resolve-conflicts<span class="w"> </span>OVERWRITE
+</code></pre></div>
+EKS 클러스터 kube-proxy-config ConfigMap 수정
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>kube-system<span class="w"> </span>edit<span class="w"> </span>cm<span class="w"> </span>kube-proxy-config
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">iptables</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">masqueradeAll</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">masqueradeBit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">14</span>
+<span class="w">    </span><span class="nt">minSyncPeriod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0s</span>
+<span class="w">    </span><span class="nt">syncPeriod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="w">  </span><span class="nt">ipvs</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">excludeCIDRs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">minSyncPeriod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0s</span>
+<span class="w">    </span><span class="nt">scheduler</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;rr&quot;</span>
+<span class="w">    </span><span class="nt">syncPeriod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30s</span>
+<span class="w">  </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">KubeProxyConfiguration</span>
+<span class="w">  </span><span class="nt">metricsBindAddress</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0.0.0:10249</span>
+<span class="w">  </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ipvs&quot;</span>
+<span class="w">  </span><span class="nt">nodePortAddresses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">  </span><span class="nt">oomScoreAdj</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-998</span>
+<span class="w">  </span><span class="nt">portRange</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
+<span class="w">  </span><span class="nt">udpIdleTimeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">250ms</span>
+</code></pre></div></p>
 <p><a href="https://kubernetes.io/ko/docs/reference/command-line-tools-reference/kube-proxy/">Kubenetes Kube-proxy란</a>
 <a href="https://docs.aws.amazon.com/ko_kr/eks/latest/best-practices/ipvs.html">IPVS 모드에서 kube-proxy 실행</a></p>
 

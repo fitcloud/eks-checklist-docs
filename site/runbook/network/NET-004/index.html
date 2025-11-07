@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1936,11 +1932,11 @@
 <h2 id="mitigation">Mitigation</h2>
 <p>적절한 로드밸런서를 선택하여 설정합니다.</p>
 <p><strong>ALB 설정 예시 (애플리케이션 트래픽에 적합)</strong></p>
-<pre><code class="language-bash">aws elbv2 create-load-balancer --name my-alb --subnets subnet-12345678 --security-groups sg-12345678 --scheme internet-facing --load-balancer-type application
-</code></pre>
+<div class="highlight"><pre><span></span><code>aws<span class="w"> </span>elbv2<span class="w"> </span>create-load-balancer<span class="w"> </span>--name<span class="w"> </span>my-alb<span class="w"> </span>--subnets<span class="w"> </span>subnet-12345678<span class="w"> </span>--security-groups<span class="w"> </span>sg-12345678<span class="w"> </span>--scheme<span class="w"> </span>internet-facing<span class="w"> </span>--load-balancer-type<span class="w"> </span>application
+</code></pre></div>
 <p><strong>NLB 설정 예시 (고성능 TCP/UDP 트래픽에 적합)</strong></p>
-<pre><code class="language-bash">aws elbv2 create-load-balancer --name my-nlb --subnets subnet-12345678 --security-groups sg-12345678 --scheme internet-facing --load-balancer-type network
-</code></pre>
+<div class="highlight"><pre><span></span><code>aws<span class="w"> </span>elbv2<span class="w"> </span>create-load-balancer<span class="w"> </span>--name<span class="w"> </span>my-nlb<span class="w"> </span>--subnets<span class="w"> </span>subnet-12345678<span class="w"> </span>--security-groups<span class="w"> </span>sg-12345678<span class="w"> </span>--scheme<span class="w"> </span>internet-facing<span class="w"> </span>--load-balancer-type<span class="w"> </span>network
+</code></pre></div>
 <p><a href="https://aws.amazon.com/ko/compare/the-difference-between-the-difference-between-application-network-and-gateway-load-balancing/">AWS ALB NLB 사용 사례</a></p>
 
 

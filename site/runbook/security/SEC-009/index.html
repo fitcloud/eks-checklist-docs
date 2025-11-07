@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1925,23 +1921,23 @@
 <li>컴플라이언스 미준수: 보안 요구사항이 있는 환경에서 감사에 실패할 가능성 존재</li>
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
-<pre><code class="language-bash"># 클러스터에 존재하는 NetworkPolicy 목록 확인
-kubectl get networkpolicy --all-namespaces
+<div class="highlight"><pre><span></span><code><span class="c1"># 클러스터에 존재하는 NetworkPolicy 목록 확인</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>networkpolicy<span class="w"> </span>--all-namespaces
 
-# 특정 네임스페이스의 정책 상세 확인
-kubectl describe networkpolicy -n &lt;namespace&gt; &lt;policy-name&gt;
-</code></pre>
+<span class="c1"># 특정 네임스페이스의 정책 상세 확인</span>
+kubectl<span class="w"> </span>describe<span class="w"> </span>networkpolicy<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;<span class="w"> </span>&lt;policy-name&gt;
+</code></pre></div>
 <p>다음과 같은 기본 차단 정책이 적용되었는지 확인</p>
-<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
-kind: NetworkPolicy
-metadata:
-  name: deny-all-ingress
-  namespace: example-namespace
-spec:
-  podSelector: {}
-  policyTypes:
-    - Ingress
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">networking.k8s.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NetworkPolicy</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deny-all-ingress</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">example-namespace</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">podSelector</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">policyTypes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ingress</span>
+</code></pre></div>
 <p>사용하는 CNI(예: AWS VPC CNI, Calico 등)가 NetworkPolicy를 지원하는지 여부</p>
 <h2 id="mitigation">Mitigation</h2>
 <p>기본 차단 정책 적용

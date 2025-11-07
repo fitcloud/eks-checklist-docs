@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1930,21 +1926,19 @@ Kubernetes에서 securityContext.runAsUser 필드를 통해 컨테이너를 일�
 - runAsUser가 0으로 명시된 경우 (명시적으로 root 권한 실행)
 - securityContext 또는 runAsUser가 아예 명시되지 않은 경우 (기본적으로 root 권한 실행 가능)
 - Windows 컨테이너에서 runAsUserName이 "Administrator"로 설정된 경우</p>
-<p><strong>command example</strong></p>
-<pre><code class="language-bash">kubectl get pods -A -o json | jq -r '
-.items[] | . as $p | $p.spec.containers[]
-| select((.securityContext.runAsUser // 0) == 0)
-| &quot;NS:\($p.metadata.namespace) Pod:\($p.metadata.name) Ctr:\(.name) (root 실행)&quot;
-'
-</code></pre>
-<ul>
-<li>이 명령은 보안 상 취약한 컨테이너만 필터링하여 표시하므로, 출력이 없다면 모든 컨테이너가 적절한 사용자 권한으로 실행되고 있는 것입니다.</li>
-</ul>
-<p><strong>출력 example</strong></p>
-<pre><code class="language-bash">Namespace: default | Pod: nginx | Container: nginx (RunAsUser 미설정, root로 실행 가능성 존재)
-Namespace: test | Pod: backend | Container: app (명시적 root 계정 실행)
-Namespace: winspace | Pod: winpod | Container: winapp (Windows Administrator 실행)
-</code></pre>
+<p><strong>command example</strong>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-A<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;</span>
+<span class="s1">.items[] | . as $p | $p.spec.containers[]</span>
+<span class="s1">| select((.securityContext.runAsUser // 0) == 0)</span>
+<span class="s1">| &quot;NS:\($p.metadata.namespace) Pod:\($p.metadata.name) Ctr:\(.name) (root 실행)&quot;</span>
+<span class="s1">&#39;</span>
+</code></pre></div>
+- 이 명령은 보안 상 취약한 컨테이너만 필터링하여 표시하므로, 출력이 없다면 모든 컨테이너가 적절한 사용자 권한으로 실행되고 있는 것입니다.</p>
+<p><strong>출력 example</strong>
+<div class="highlight"><pre><span></span><code>Namespace:<span class="w"> </span>default<span class="w"> </span><span class="p">|</span><span class="w"> </span>Pod:<span class="w"> </span>nginx<span class="w"> </span><span class="p">|</span><span class="w"> </span>Container:<span class="w"> </span>nginx<span class="w"> </span><span class="o">(</span>RunAsUser<span class="w"> </span>미설정,<span class="w"> </span>root로<span class="w"> </span>실행<span class="w"> </span>가능성<span class="w"> </span>존재<span class="o">)</span>
+Namespace:<span class="w"> </span><span class="nb">test</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>Pod:<span class="w"> </span>backend<span class="w"> </span><span class="p">|</span><span class="w"> </span>Container:<span class="w"> </span>app<span class="w"> </span><span class="o">(</span>명시적<span class="w"> </span>root<span class="w"> </span>계정<span class="w"> </span>실행<span class="o">)</span>
+Namespace:<span class="w"> </span>winspace<span class="w"> </span><span class="p">|</span><span class="w"> </span>Pod:<span class="w"> </span>winpod<span class="w"> </span><span class="p">|</span><span class="w"> </span>Container:<span class="w"> </span>winapp<span class="w"> </span><span class="o">(</span>Windows<span class="w"> </span>Administrator<span class="w"> </span>실행<span class="o">)</span>
+</code></pre></div></p>
 <ul>
 <li>RunAsUser 미설정: securityContext 또는 runAsUser가 지정되지 않아 기본적으로 root 권한으로 실행될 가능성이 있습니다.</li>
 <li>명시적 root 계정 실행: runAsUser: 0으로 명시되어 있어 의도적으로 루트로 실행되도록 설정된 컨테이너입니다.</li>
@@ -1952,11 +1946,11 @@ Namespace: winspace | Pod: winpod | Container: winapp (Windows Administrator 실
 </ul>
 <h2 id="mitigation">Mitigation</h2>
 <p>컨테이너에 securityContext.runAsUser를 명시하고 UID 0을 피하세요. 루트 권한을 회피하는 것은 기본 보안 원칙 중 하나입니다.</p>
-<p><strong>Non-Root 사용자로 실행 설정 example</strong></p>
-<pre><code class="language-yaml">securityContext:
-  runAsUser: 1000
-  allowPrivilegeEscalation: false
-</code></pre>
+<p><strong>Non-Root 사용자로 실행 설정 example</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">securityContext</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">runAsUser</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000</span>
+<span class="w">  </span><span class="nt">allowPrivilegeEscalation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div></p>
 <p><a href="https://kubernetes.io/ko/docs/concepts/security/pod-security-standards/">Pod-security</a></p>
 
 

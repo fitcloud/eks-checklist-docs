@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1924,35 +1920,35 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>EKS에서 사용 중인 PersistentVolume(PV)과 PVC(PersistentVolumeClaim)를 조회하고, 해당 PV가 연결된 EBS 볼륨의 암호화 여부를 확인합니다.</p>
-<pre><code class="language-bash"># PVC와 연결된 PV 확인
-kubectl get pvc -A -o wide
+<div class="highlight"><pre><span></span><code><span class="c1"># PVC와 연결된 PV 확인</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>pvc<span class="w"> </span>-A<span class="w"> </span>-o<span class="w"> </span>wide
 
-# PV에서 VolumeID(EBS ID) 확인
-kubectl get pv -o jsonpath='{range .items[*]}{.metadata.name}{&quot;\t&quot;}{.spec.awsElasticBlockStore.volumeID}{&quot;\n&quot;}{end}'
+<span class="c1"># PV에서 VolumeID(EBS ID) 확인</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>pv<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{range .items[*]}{.metadata.name}{&quot;\t&quot;}{.spec.awsElasticBlockStore.volumeID}{&quot;\n&quot;}{end}&#39;</span>
 
-# AWS CLI를 통한 EBS 암호화 여부 확인
-aws ec2 describe-volumes --volume-ids vol-xxxxxxxx | jq '.Volumes[].Encrypted'
-Encrypted: true 가 나와야 암호화된 상태입니다.
-</code></pre>
+<span class="c1"># AWS CLI를 통한 EBS 암호화 여부 확인</span>
+aws<span class="w"> </span>ec2<span class="w"> </span>describe-volumes<span class="w"> </span>--volume-ids<span class="w"> </span>vol-xxxxxxxx<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.Volumes[].Encrypted&#39;</span>
+Encrypted:<span class="w"> </span><span class="nb">true</span><span class="w"> </span>가<span class="w"> </span>나와야<span class="w"> </span>암호화된<span class="w"> </span>상태입니다.
+</code></pre></div>
 <p>사용중인 스토리지 클래스에 다음과 같은 설정이 있는지 확인할 수 있습니다</p>
-<pre><code class="language-yaml">parameters:
-  encrypted: &quot;true&quot;
-  kmsKeyId: &lt;optional-custom-kms-key-id&gt;
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nt">parameters</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">encrypted</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">  </span><span class="nt">kmsKeyId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;optional-custom-kms-key-id&gt;</span>
+</code></pre></div>
 <h2 id="mitigation">Mitigation</h2>
 <p>다음과 같은 방식으로 EKS에서 사용할 PV에 암호화를 적용합니다.</p>
 <p>스토리지 클래스(StorageClass) 수정
 기본 StorageClass 또는 사용자 정의 StorageClass에서 EBS 암호화 옵션을 활성화합니다.</p>
-<pre><code class="language-yaml">apiVersion: storage.k8s.io/v1
-kind: StorageClass
-metadata:
-  name: encrypted-gp3
-provisioner: ebs.csi.aws.com
-parameters:
-  type: gp3
-  encrypted: &quot;true&quot;
-  kmsKeyId: arn:aws:kms:ap-northeast-2:123456789012:key/abcde-1234-5678-xyz
-</code></pre>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">storage.k8s.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">StorageClass</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">encrypted-gp3</span>
+<span class="nt">provisioner</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ebs.csi.aws.com</span>
+<span class="nt">parameters</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">gp3</span>
+<span class="w">  </span><span class="nt">encrypted</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">  </span><span class="nt">kmsKeyId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">arn:aws:kms:ap-northeast-2:123456789012:key/abcde-1234-5678-xyz</span>
+</code></pre></div>
 <p>encrypted: "true"로 설정</p>
 <p>KMS 키를 명시적으로 지정 가능 (기본 AWS 관리 키 사용도 가능)</p>
 <p><strong>Before</strong></p>

@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1924,24 +1920,24 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>존재하는 ALB 중 target-type이 ip가 아닌 리소스를 출력하세요</p>
-<pre><code class="language-bash">kubectl get ingress -A -o json | jq '.items[] | select(.metadata.annotations[&quot;alb.ingress.kubernetes.io/target-type&quot;] != &quot;ip&quot;)'
-</code></pre>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>ingress<span class="w"> </span>-A<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.items[] | select(.metadata.annotations[&quot;alb.ingress.kubernetes.io/target-type&quot;] != &quot;ip&quot;)&#39;</span>
+</code></pre></div>
 <p>존재하는 NLB 중 target-type이 ip가 아닌 리소스를 출력하세요</p>
-<pre><code class="language-bash">kubectl get svc -A -o json | jq '.items[] | select(.metadata.annotations[&quot;service.beta.kubernetes.io/aws-load-balancer-nlb-target-type&quot;] != &quot;ip&quot;)'
-</code></pre>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>svc<span class="w"> </span>-A<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">&#39;.items[] | select(.metadata.annotations[&quot;service.beta.kubernetes.io/aws-load-balancer-nlb-target-type&quot;] != &quot;ip&quot;)&#39;</span>
+</code></pre></div>
 <h2 id="mitigation">Mitigation</h2>
 <p>Ingress 및 Service에 다음과 같은 Annotation을 명시적으로 설정해야 합니다.</p>
-<p><strong>ALB (Ingress) 설정 예시</strong></p>
-<pre><code class="language-yaml">metadata:
-  annotations:
-    alb.ingress.kubernetes.io/target-type: ip
-</code></pre>
-<p><strong>NLB (Service) 설정 예시</strong></p>
-<pre><code class="language-yaml">metadata:
-  annotations:
-    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: ip
-</code></pre>
-<p><a href="https://docs.aws.amazon.com/eks/latest/best-practices/load-balancing.html">AWS 모범사례</a>
+<p><strong>ALB (Ingress) 설정 예시</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">alb.ingress.kubernetes.io/target-type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ip</span>
+</code></pre></div></p>
+<p><strong>NLB (Service) 설정 예시</strong>
+<div class="highlight"><pre><span></span><code><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">service.beta.kubernetes.io/aws-load-balancer-nlb-target-type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ip</span>
+</code></pre></div>
+<a href="https://docs.aws.amazon.com/eks/latest/best-practices/load-balancing.html">AWS 모범사례</a>
 <a href="https://docs.aws.amazon.com/eks/latest/userguide/network-load-balancing.html">AWS 공식문서-EKS와 NLB 사용법</a>
 <a href="https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/guide/ingress/annotations/#target-type">AWS Load Balancer Controller GitHub-ALB</a>
 <a href="https://kubernetes-sigs.github.io/aws-load-balancer-controller/v2.4/guide/service/annotations/">AWS Load Balancer Controller GitHub-NLB</a></p>

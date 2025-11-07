@@ -35,13 +35,9 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
+    
+      <link rel="stylesheet" href="../../../assets/css/custom.css">
     
     <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -1924,38 +1920,37 @@
 </ul>
 <h2 id="diagnosis">Diagnosis</h2>
 <p>다음 명령어를 통해 CoreDNS에 캐시 설정이 되어 있는지 확인합니다</p>
-<pre><code class="language-bash">kubectl get configmap coredns -n kube-system -o=jsonpath='{.data.Corefile}' | grep -i 'cache'
-</code></pre>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>configmap<span class="w"> </span>coredns<span class="w"> </span>-n<span class="w"> </span>kube-system<span class="w"> </span>-o<span class="o">=</span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.data.Corefile}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span><span class="s1">&#39;cache&#39;</span>
+</code></pre></div>
 <h2 id="mitigation">Mitigation</h2>
 <p>CoreDNS에 캐시 설정을 추가하려면 Corefile을 수정해야 합니다. 다음과 같이 배포 시 config의 cache 설정을 추가합니다.</p>
-<pre><code class="language-yaml">apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: coredns
-  namespace: kube-system
-data:
-  Corefile: |
-    .:53 {
-        errors
-        health {
-            lameduck 5s
-        }
-        ready
-        kubernetes cluster.local in-addr.arpa ip6.arpa {
-            pods insecure
-            fallthrough in-addr.arpa ip6.arpa
-            ttl 30
-        }
-        prometheus :9153
-        forward . /etc/resolv.conf
-        cache 30
-        loop
-        reload
-        loadbalance
-    }
-
-</code></pre>
-<p><a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/managing-coredns.html">Amazon EKS 클러스터에서 DNS에 대한 CoreDNS 관리</a>
+<p><div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">coredns</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kube-system</span>
+<span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">Corefile</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">.:53 {</span>
+<span class="w">        </span><span class="no">errors</span>
+<span class="w">        </span><span class="no">health {</span>
+<span class="w">            </span><span class="no">lameduck 5s</span>
+<span class="w">        </span><span class="no">}</span>
+<span class="w">        </span><span class="no">ready</span>
+<span class="w">        </span><span class="no">kubernetes cluster.local in-addr.arpa ip6.arpa {</span>
+<span class="w">            </span><span class="no">pods insecure</span>
+<span class="w">            </span><span class="no">fallthrough in-addr.arpa ip6.arpa</span>
+<span class="w">            </span><span class="no">ttl 30</span>
+<span class="w">        </span><span class="no">}</span>
+<span class="w">        </span><span class="no">prometheus :9153</span>
+<span class="w">        </span><span class="no">forward . /etc/resolv.conf</span>
+<span class="w">        </span><span class="no">cache 30</span>
+<span class="w">        </span><span class="no">loop</span>
+<span class="w">        </span><span class="no">reload</span>
+<span class="w">        </span><span class="no">loadbalance</span>
+<span class="w">    </span><span class="no">}</span>
+</code></pre></div>
+<a href="https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/managing-coredns.html">Amazon EKS 클러스터에서 DNS에 대한 CoreDNS 관리</a>
 <a href="https://kubernetes.io/docs/tasks/administer-cluster/dns-custom-nameservers/">Customizing DNS Service</a>
 <a href="https://coredns.io/2017/07/23/corefile-explained/">Corefile Explained</a></p>
 
