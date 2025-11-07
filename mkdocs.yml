@@ -1,35 +1,18 @@
-markdown_extensions:
-  - pymdownx.highlight:
-      anchor_linenums: true
-      line_spans: __span
-      pygments_lang_class: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - pymdownx.superfences
-  - pymdownx.tabbed:
-      alternate_style: true
-
-extra_css:
-  - assets/css/custom.css
-
 site_name: "KOR"
 repo_url: "https://github.com/fitcloud/eks-checklist"
 repo_name: "fitcloud/eks-checklist"
 docs_dir: docs
 theme:
   name: "material"
+  font: false
   icon:
     repo: fontawesome/brands/github
   features:
     - content.code.copy
     - content.code.select
-    - navigation.instant  # 추가
-    - navigation.tracking  # 추가
-    - navigation.indexes  # 추가 - 섹션 인덱스 페이지 사용
 
 nav:
-    - Home : 
-      - index.md
+    - Home: index.md
       # - How it works : home/howitworks.md
     - Runbook:
       - General:
@@ -90,3 +73,13 @@ nav:
         - NET-009 Endpoint 대신 EndpointSlices 사용: runbook/network/NET-009.md
       - Cost:
         - COST-001 kubecost 설치 : runbook/cost/COST-001.md
+
+markdown_extensions:
+  - attr_list
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+
+
+extra_css:
+  - assets/css/custom.css
