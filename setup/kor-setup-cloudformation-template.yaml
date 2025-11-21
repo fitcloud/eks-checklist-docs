@@ -90,6 +90,7 @@ Resources:
                   - eks:DescribeCluster
                   - eks:ListNodegroups
                   - eks:DescribeNodegroup
+                  - eks:ListAccessEntries
                   - ec2:Describe*
                   - ec2:GetConsoleOutput
                   - ec2:GetPasswordData
