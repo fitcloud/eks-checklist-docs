@@ -96,6 +96,7 @@ Resources:
                   - eks:ListFargateProfiles
                   - eks:ListAddons
                   - eks:DescribeAddon
+                  - eks:DescribeFargateProfile
                   - ec2:Describe*
                   - ec2:GetConsoleOutput
                   - ec2:GetPasswordData
