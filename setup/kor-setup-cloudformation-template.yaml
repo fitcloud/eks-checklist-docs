@@ -95,6 +95,7 @@ Resources:
                   - eks:ListAssociatedAccessPolicies
                   - eks:ListFargateProfiles
                   - eks:ListAddons
+                  - eks:DescribeAddon
                   - ec2:Describe*
                   - ec2:GetConsoleOutput
                   - ec2:GetPasswordData
