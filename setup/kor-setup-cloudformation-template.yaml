@@ -92,6 +92,7 @@ Resources:
                   - eks:DescribeNodegroup
                   - eks:ListAccessEntries
                   - eks:DescribeAccessEntry
+                  - eks:ListAssociatedAccessPolicies
                   - ec2:Describe*
                   - ec2:GetConsoleOutput
                   - ec2:GetPasswordData
