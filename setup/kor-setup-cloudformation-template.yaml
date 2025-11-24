@@ -93,6 +93,8 @@ Resources:
                   - eks:ListAccessEntries
                   - eks:DescribeAccessEntry
                   - eks:ListAssociatedAccessPolicies
+                  - eks:ListFargateProfiles
+                  - eks:ListAddons
                   - ec2:Describe*
                   - ec2:GetConsoleOutput
                   - ec2:GetPasswordData
